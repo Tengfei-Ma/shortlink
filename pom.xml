@@ -7,6 +7,14 @@
     <groupId>org.mtf.shortlink</groupId>
     <artifactId>shortlink-all</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <!--    父模块只定义依赖版本，不参与打包-->
+    <packaging>pom</packaging>
+    <modules>
+        <module>admin</module>
+        <module>project</module>
+        <module>gateway</module>
+    </modules>
+
 
     <properties>
         <java.version>17</java.version>
@@ -24,6 +32,12 @@
         <guava.version>30.0-jre</guava.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
     <dependencyManagement>
         <dependencies>
             <dependency>
