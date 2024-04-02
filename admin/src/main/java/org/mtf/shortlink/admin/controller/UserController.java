@@ -4,13 +4,11 @@ import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import org.mtf.shortlink.admin.common.convention.result.Result;
 import org.mtf.shortlink.admin.common.convention.result.Results;
+import org.mtf.shortlink.admin.dto.req.UserRegisterReqDTO;
 import org.mtf.shortlink.admin.dto.resp.UserActualRespDTO;
 import org.mtf.shortlink.admin.dto.resp.UserRespDTO;
 import org.mtf.shortlink.admin.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户管理
@@ -40,5 +38,13 @@ public class UserController {
     @GetMapping("/api/shortlink/v1/user/has-username")
     public Result<Boolean> hasUsername(@RequestParam("username") String username){
         return Results.success(userService.hasUsername(username));
+    }
+    /**
+     * 用户注册
+     */
+    @PostMapping("/api/shortlink/v1/user")
+    public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam){
+        userService.register(requestParam);
+        return Results.success();
     }
 }

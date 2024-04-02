@@ -2,6 +2,7 @@ package org.mtf.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.mtf.shortlink.admin.dao.entity.UserDO;
+import org.mtf.shortlink.admin.dto.req.UserRegisterReqDTO;
 import org.mtf.shortlink.admin.dto.resp.UserRespDTO;
 
 /**
@@ -16,13 +17,13 @@ public interface UserService extends IService<UserDO> {
     UserRespDTO getUserByUsername(String username);
 
     /**
-     * 查询用户名是否存在
+     * 查询用户名是否可用
      * @param username 用户名
-     * @return 存在返回true，不存在返回false
+     * @return 可用返回true，不可用返回false
      */
     Boolean hasUsername(String username);
     /**
      * 用户注册
      */
-    void register();
+    void register(UserRegisterReqDTO requestParam);
 }
