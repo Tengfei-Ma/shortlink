@@ -21,4 +21,8 @@ public interface UserService extends IService<UserDO> {
      * @return 存在返回true，不存在返回false
      */
     Boolean hasUsername(String username);
+    /**
+     * 用户注册
+     */
+    void register();
 }
