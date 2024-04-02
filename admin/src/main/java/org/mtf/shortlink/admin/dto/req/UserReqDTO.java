@@ -1,4 +1,4 @@
-package org.mtf.shortlink.admin.dto;
+package org.mtf.shortlink.admin.dto.req;
 
 public class UserReqDTO {
 }

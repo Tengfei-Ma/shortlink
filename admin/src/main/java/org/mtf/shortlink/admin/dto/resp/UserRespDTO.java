@@ -1,2 +1,21 @@
-package org.mtf.shortlink.admin.dto.resp;public class UserRespDTO {
+package org.mtf.shortlink.admin.dto.resp;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Data;
+import org.mtf.shortlink.admin.common.serialize.PhoneDesensitizationSerializer;
+
+/**
+ * 用户返回参数实体
+ */
+@Data
+public class UserRespDTO {
+    private Long id;
+    private String username;
+    private String realName;
+    /**
+     * 手机号脱敏处理
+     */
+    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
+    private String phone;
+    private String mail;
 }
