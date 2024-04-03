@@ -23,7 +23,7 @@ public class GroupController {
      * 新增短链接分组
      */
     @PostMapping("/api/shortlink/v1/group")
-    public Result<Void> save(@RequestBody ShortLinkGroupSaveReqDTO requestParam){
+    public Result<Void> saveGroup(@RequestBody ShortLinkGroupSaveReqDTO requestParam){
         groupService.saveGroup(requestParam);
         return Results.success();
     }
@@ -41,7 +41,15 @@ public class GroupController {
      */
     @PutMapping("/api/shortlink/v1/group")
     public Result<Void> updateGroup(@RequestBody ShortLinkGroupUpdateReqDTO requestParam){
-        groupService.update(requestParam);
+        groupService.updateGroup(requestParam);
+        return Results.success();
+    }
+    /**
+     * 删除短链接分组
+     */
+    @DeleteMapping("/api/shortlink/v1/group")
+    public Result<Void> deleteGroup(@RequestParam("gid") String gid){
+        groupService.deleteGroup(gid);
         return Results.success();
     }
 }
