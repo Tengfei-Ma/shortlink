@@ -26,6 +26,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         groupDO.setGid(RandomGenerator.generateRandom());
         groupDO.setName(requestParam.getName());
         //TODO 用户名来自网关
+        groupDO.setSortOrder(0);
         baseMapper.insert(groupDO);
     }
     private boolean hasGid(String gid){
