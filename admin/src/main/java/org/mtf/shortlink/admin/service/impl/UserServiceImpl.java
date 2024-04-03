@@ -100,16 +100,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if(userDO==null){
             throw new ClientException(UserErroeCodeEnum.USER_PASSWORD_ERROR);
         }
-        /**
-         * 防止用户重复登陆
-         */
+        //防止用户重复登录
         Map<Object, Object> hasLoginMap = stringRedisTemplate.opsForHash().entries(USER_LOGIN_KEY + requestParam.getUsername());
         if (CollUtil.isNotEmpty(hasLoginMap)) {
             stringRedisTemplate.expire(USER_LOGIN_KEY + requestParam.getUsername(), 30L, TimeUnit.MINUTES);
             String token = hasLoginMap.keySet().stream()
                     .findFirst()
                     .map(Object::toString)
-                    .orElseThrow(() -> new ClientException("用户登录错误"));
+                    .orElseThrow(() -> new ClientException(UserErroeCodeEnum.USER_LOGIN_ERROR));
             return new UserLoginRespDTO(token);
         }
         /**
@@ -128,5 +126,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     @Override
     public Boolean checkLogin(String username, String token) {
         return stringRedisTemplate.opsForHash().get(USER_LOGIN_KEY + username, token) != null;
+    }
+
+    @Override
+    public void logout(String username, String token) {
+        if(checkLogin(username,token)){
+            stringRedisTemplate.delete(USER_LOGIN_KEY + username);
+            return;
+        }
+        throw new ClientException(UserErroeCodeEnum.USER_NOT_LOGIN);
     }
 }
