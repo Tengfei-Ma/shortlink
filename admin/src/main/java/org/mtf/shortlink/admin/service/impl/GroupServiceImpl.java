@@ -2,12 +2,14 @@ package org.mtf.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.mtf.shortlink.admin.common.biz.user.UserContext;
 import org.mtf.shortlink.admin.dao.entity.GroupDO;
 import org.mtf.shortlink.admin.dao.mapper.GroupMapper;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
+import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
 import org.mtf.shortlink.admin.service.GroupService;
 import org.mtf.shortlink.admin.toolkit.RandomGenerator;
@@ -43,6 +45,15 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .orderByDesc(GroupDO::getUpdateTime);
         List<GroupDO> groups = baseMapper.selectList(queryWrapper);
         return BeanUtil.copyToList(groups, ShortlinkGroupRespDTO.class);
+    }
+
+    @Override
+    public void update(ShortLinkGroupUpdateReqDTO requestParam) {
+        LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getGid, requestParam.getGid())
+                .eq(GroupDO::getUsername,UserContext.getUsername())
+                .eq(GroupDO::getDelFlag,0);
+        baseMapper.update(BeanUtil.toBean(requestParam,GroupDO.class),updateWrapper);
     }
 
     private boolean hasGid(String gid){
