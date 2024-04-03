@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 用户登录返回参数实体
+ * 用户登录返回实体
  */
 @Data
 @NoArgsConstructor

@@ -5,7 +5,7 @@ import lombok.Data;
 import org.mtf.shortlink.admin.common.serialize.PhoneDesensitizationSerializer;
 
 /**
- * 用户返回参数实体
+ * 用户脱敏信息返回实体
  */
 @Data
 public class UserRespDTO {
