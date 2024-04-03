@@ -10,7 +10,7 @@ import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
 public interface GroupService extends IService<GroupDO> {
     /**
      * 新增短链接分组
-     * @param groupName 分组名称
+     * @param requestParam 分组名称
      */
     void saveGroup(ShortLinkGroupSaveReqDTO requestParam);
 }
