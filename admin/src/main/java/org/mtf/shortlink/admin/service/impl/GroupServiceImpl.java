@@ -10,6 +10,7 @@ import org.mtf.shortlink.admin.dao.entity.GroupDO;
 import org.mtf.shortlink.admin.dao.mapper.GroupMapper;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
+import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
 import org.mtf.shortlink.admin.service.GroupService;
 import org.mtf.shortlink.admin.toolkit.RandomGenerator;
@@ -62,9 +63,23 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .eq(GroupDO::getGid, gid)
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .eq(GroupDO::getDelFlag, 0);
-        GroupDO groupDO=new GroupDO();
+        GroupDO groupDO = new GroupDO();
         groupDO.setDelFlag(1);
-        baseMapper.update(groupDO,updateWrapper);
+        baseMapper.update(groupDO, updateWrapper);
+    }
+
+    @Override
+    public void sortGroup(List<ShortlinkGroupSortReqDTO> requestParam) {
+        requestParam.stream()
+                .map(shortlinkGroupSortReqDTO -> BeanUtil.toBean(shortlinkGroupSortReqDTO, GroupDO.class))
+                .forEach(groupDO -> {
+                    LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                            .eq(GroupDO::getGid, groupDO.getGid())
+                            .eq(GroupDO::getUsername, UserContext.getUsername())
+                            .eq(GroupDO::getDelFlag, 0);
+                    baseMapper.update(groupDO, updateWrapper);
+                });
+
     }
 
     private boolean hasGid(String gid) {

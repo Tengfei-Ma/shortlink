@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.mtf.shortlink.admin.dao.entity.GroupDO;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
+import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
 
 import java.util.List;
@@ -35,4 +36,10 @@ public interface GroupService extends IService<GroupDO> {
      * @param gid 分组标识
      */
     void deleteGroup(String gid);
+
+    /**
+     * 短链接分组排序
+     * @param requestParam 分组标识和排序字段
+     */
+    void sortGroup(List<ShortlinkGroupSortReqDTO> requestParam);
 }

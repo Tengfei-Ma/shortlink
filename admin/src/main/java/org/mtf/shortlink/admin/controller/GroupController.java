@@ -5,6 +5,7 @@ import org.mtf.shortlink.admin.common.convention.result.Result;
 import org.mtf.shortlink.admin.common.convention.result.Results;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
+import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
 import org.mtf.shortlink.admin.service.GroupService;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,14 @@ public class GroupController {
     @DeleteMapping("/api/shortlink/v1/group")
     public Result<Void> deleteGroup(@RequestParam("gid") String gid){
         groupService.deleteGroup(gid);
+        return Results.success();
+    }
+    /**
+     * 短链接分组排序
+     */
+    @PostMapping("/api/shortlink/v1/group/sort")
+    public Result<Void> sortGroup(@RequestBody List<ShortlinkGroupSortReqDTO> requestParam){
+        groupService.sortGroup(requestParam);
         return Results.success();
     }
 }
