@@ -27,8 +27,8 @@ public class UserTransmitFilter implements Filter {
     * 但是注册接口的url和一些其他接口的url重复，只是请求方式不一样，需要单独判断
     */
     private static final List<String> IGNORE_URI = Lists.newArrayList(
-            "/api/shortlink/v1/user/login",
-            "/api/shortlink/v1/user/has-username");
+            "/api/shortlink/admin/v1/user/login",
+            "/api/shortlink/admin/v1/user/has-username");
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
