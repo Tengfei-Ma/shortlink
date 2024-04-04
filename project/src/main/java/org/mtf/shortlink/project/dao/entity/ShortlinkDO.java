@@ -21,6 +21,7 @@ public class ShortlinkDO extends BaseDO {
     private String originUrl;
     private Integer clickNum;
     private String gid;
+    private String favicon;
     private Integer enableStatus;
     private Integer createType;
     private Integer validDateType;
