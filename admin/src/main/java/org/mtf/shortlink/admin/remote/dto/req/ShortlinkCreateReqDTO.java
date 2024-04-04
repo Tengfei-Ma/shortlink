@@ -1,4 +1,4 @@
-package org.mtf.shortlink.project.dto.req;
+package org.mtf.shortlink.admin.remote.dto.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
