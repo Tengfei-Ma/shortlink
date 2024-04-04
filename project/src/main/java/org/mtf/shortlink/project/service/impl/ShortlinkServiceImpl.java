@@ -2,6 +2,10 @@ package org.mtf.shortlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.UUID;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,12 +14,15 @@ import org.mtf.shortlink.project.common.enums.ShortlinkErrorCodeEnum;
 import org.mtf.shortlink.project.dao.entity.ShortlinkDO;
 import org.mtf.shortlink.project.dao.mapper.ShortlinkMapper;
 import org.mtf.shortlink.project.dto.req.ShortlinkCreateReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkPageReqDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkCreateRespDTO;
+import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
 import org.mtf.shortlink.project.service.ShortlinkService;
 import org.mtf.shortlink.project.toolkit.HashUtil;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+
 /**
  * 短链接接口实现层
  */
@@ -51,6 +58,18 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         shortlinkCreateRespDTO.setFullShortUrl("http://" +fullShortUrl);
         return shortlinkCreateRespDTO;
     }
+
+    @Override
+    public IPage<ShortlinkPageRespDTO> pageShortlink(ShortlinkPageReqDTO requestParam) {
+        LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
+                .eq(ShortlinkDO::getGid, requestParam.getGid())
+                .eq(ShortlinkDO::getEnableStatus, 0)
+                .eq(ShortlinkDO::getDelFlag, 0)
+                .orderByDesc(ShortlinkDO::getCreateTime);
+        Page<ShortlinkDO> page = page(requestParam, queryWrapper);
+        return page.convert(shortlinkDO -> BeanUtil.toBean(shortlinkDO, ShortlinkPageRespDTO.class));
+    }
+
     private String generateShortUri(String domain,String originUrl){
         int customGenerateCount = 1;
         String shortUri;
