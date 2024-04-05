@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.mtf.shortlink.admin.common.convention.result.Result;
 import org.mtf.shortlink.admin.remote.dto.req.ShortlinkCreateReqDTO;
 import org.mtf.shortlink.admin.remote.dto.req.ShortlinkPageReqDTO;
+import org.mtf.shortlink.admin.remote.dto.req.ShortlinkUpdateReqDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkCreateRespDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkPageRespDTO;
@@ -22,8 +23,8 @@ public interface ShortlinkRemoteService {
      * @param requestParam 创建短链接请求实体
      * @return 创建短链接响应实体
      */
-    default Result<ShortlinkCreateRespDTO> createShortLink(ShortlinkCreateReqDTO requestParam) {
-        String resp = HttpUtil.post("http://127.0.0.1:8001/api/shortlink/v1/create", JSON.toJSONString(requestParam));
+    default Result<ShortlinkCreateRespDTO> createShortlink(ShortlinkCreateReqDTO requestParam) {
+        String resp = HttpUtil.post("http://127.0.0.1:8001/api/shortlink/v1/link", JSON.toJSONString(requestParam));
         return JSON.parseObject(resp, new TypeReference<>() {
         });
     }
@@ -54,5 +55,14 @@ public interface ShortlinkRemoteService {
         String resp = HttpUtil.get("http://127.0.0.1:8001/api/shortlink/v1/count",map);
         return JSON.parseObject(resp, new TypeReference<>() {
         });
+    }
+    /**
+     * 修改短链接
+     *
+     * @param requestParam 修改短链接请求实体
+     */
+    default void updateShortlink(ShortlinkUpdateReqDTO requestParam) {
+        //TODO HttpUtil无法发送put请求？
+        String resp = HttpUtil.post("http://127.0.0.1:8001/api/shortlink/v1/page",JSON.toJSONString(requestParam));
     }
 }

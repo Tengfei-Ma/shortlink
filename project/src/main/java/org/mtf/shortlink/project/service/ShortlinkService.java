@@ -2,9 +2,12 @@ package org.mtf.shortlink.project.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.mtf.shortlink.project.dao.entity.ShortlinkDO;
 import org.mtf.shortlink.project.dto.req.ShortlinkCreateReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkPageReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkUpdateReqDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkCreateRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
@@ -35,4 +38,18 @@ public interface ShortlinkService extends IService<ShortlinkDO> {
      * @return 各分组内短连接数量响应参数
      */
     List<ShortlinkGroupCountRespDTO> listGroupShortlinkCount(List<String> requestParam);
+
+    /**
+     * 修改短链接
+     * @param requestParam 修改短链接请求实体
+     */
+    void updateShortlink(ShortlinkUpdateReqDTO requestParam);
+
+    /**
+     * 短链接跳转
+     * @param shortUri 6位短链接
+     * @param request 请求
+     * @param response 响应
+     */
+    void restoreUrl(String shortUri, ServletRequest request, ServletResponse response);
 }
