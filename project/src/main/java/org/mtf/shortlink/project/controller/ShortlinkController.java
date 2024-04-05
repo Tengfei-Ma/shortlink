@@ -24,6 +24,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShortlinkController {
     private final ShortlinkService shortlinkService;
+    /**
+     * 短链接跳转长链接
+     */
+    @GetMapping("/{short-uri}")
+    public void restoreUrl(@PathVariable("short-uri") String shortUri, ServletRequest request, ServletResponse response)    {
+        shortlinkService.restoreUrl(shortUri,request,response);
+    }
 
     /**
      * 创建短链接
@@ -37,7 +44,7 @@ public class ShortlinkController {
      * 分页查询短链接
      */
     @GetMapping("/api/shortlink/v1/link/page")
-    public Result<IPage<ShortlinkPageRespDTO>> pageShortlink(ShortlinkPageReqDTO requestParam){
+    public Result<IPage<ShortlinkPageRespDTO>> pageShortlink(@RequestBody ShortlinkPageReqDTO requestParam){
         return Results.success(shortlinkService.pageShortlink(requestParam));
     }
     /**
@@ -55,11 +62,5 @@ public class ShortlinkController {
         shortlinkService.updateShortlink(requestParam);
         return Results.success();
     }
-    /**
-     * 短链接跳转长链接
-     */
-    @GetMapping("/{short-uri}")
-    public void restoreUrl(@PathVariable("short-uri") String shortUri, ServletRequest request, ServletResponse response)    {
-        shortlinkService.restoreUrl(shortUri,request,response);
-    }
+
 }
