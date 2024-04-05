@@ -6,11 +6,11 @@ import org.mtf.shortlink.admin.remote.ShortlinkRemoteService;
 import org.mtf.shortlink.admin.remote.dto.req.ShortlinkCreateReqDTO;
 import org.mtf.shortlink.admin.remote.dto.req.ShortlinkPageReqDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkCreateRespDTO;
+import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkPageRespDTO;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class ShortlinkController {
@@ -30,5 +30,12 @@ public class ShortlinkController {
     @GetMapping("/api/shortlink/admin/v1/page")
     public Result<IPage<ShortlinkPageRespDTO>> pageShortlink(@RequestBody ShortlinkPageReqDTO requestParam){
         return shortlinkRemoteService.pageShortlink(requestParam);
+    }
+    /**
+     * 查询分组内短连接数量
+     */
+    @GetMapping("/api/shortlink/admin/v1/count")
+    public Result<List<ShortlinkGroupCountRespDTO>> listGroupShortlinkCount(@RequestParam("requestParam") List<String> requestParam){
+        return shortlinkRemoteService.listGroupShortlinkCount(requestParam);
     }
 }

@@ -12,17 +12,22 @@ import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
+import org.mtf.shortlink.admin.remote.ShortlinkRemoteService;
+import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.admin.service.GroupService;
 import org.mtf.shortlink.admin.toolkit.RandomGenerator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 短链接分组接口实现层
  */
 @Service
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
+    private ShortlinkRemoteService shortlinkRemoteService=new ShortlinkRemoteService() {
+    };
     @Override
     public void saveGroup(ShortLinkGroupSaveReqDTO requestParam) {
         String gid;
@@ -45,7 +50,14 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .orderByDesc(GroupDO::getSortOrder)
                 .orderByDesc(GroupDO::getUpdateTime);
         List<GroupDO> groups = baseMapper.selectList(queryWrapper);
-        return BeanUtil.copyToList(groups, ShortlinkGroupRespDTO.class);
+        List<ShortlinkGroupRespDTO> shortlinkGroupRespDTOS = BeanUtil.copyToList(groups, ShortlinkGroupRespDTO.class);
+        List<String> req=shortlinkGroupRespDTOS.stream().map(ShortlinkGroupRespDTO::getGid).toList();
+        List<ShortlinkGroupCountRespDTO> resp = shortlinkRemoteService.listGroupShortlinkCount(req).getData();
+        shortlinkGroupRespDTOS.forEach(each -> {
+            Optional<ShortlinkGroupCountRespDTO> first = resp.stream().filter(item -> each.getGid().equals(item.getGid())).findFirst();
+            first.ifPresent(firstItem -> each.setShortlinkCount(firstItem.getShortlinkCount()));
+        });
+        return shortlinkGroupRespDTOS;
     }
 
     @Override

@@ -8,6 +8,9 @@ import lombok.Data;
 public class ShortlinkGroupRespDTO {
     private String gid;
     private String name;
-    private String username;
     private Integer sortOrder;
+    /**
+     * 该分组中短链接数
+     */
+    private Integer shortlinkCount;
 }
