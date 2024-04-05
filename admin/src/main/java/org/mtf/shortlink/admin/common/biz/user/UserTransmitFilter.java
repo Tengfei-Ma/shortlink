@@ -35,7 +35,7 @@ public class UserTransmitFilter implements Filter {
         String requestURI = httpServletRequest.getRequestURI();
         if(!IGNORE_URI.contains(requestURI)){
             String method = httpServletRequest.getMethod();
-            if(!("/api/shortlink/v1/user".equals(requestURI)&&"POST".equals(method))){
+            if(!("/api/shortlink/admin/v1/user".equals(requestURI)&&"POST".equals(method))){
                 String username = httpServletRequest.getHeader(UserConstant.USERINFO_USERNAME);
                 String token = httpServletRequest.getHeader(UserConstant.USERINFO_TOKEN);
                 if(!StrUtil.isAllNotBlank(username,token)){

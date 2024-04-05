@@ -18,6 +18,7 @@ import org.mtf.shortlink.admin.dto.req.UserRegisterReqDTO;
 import org.mtf.shortlink.admin.dto.req.UserUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.resp.UserLoginRespDTO;
 import org.mtf.shortlink.admin.dto.resp.UserRespDTO;
+import org.mtf.shortlink.admin.service.GroupService;
 import org.mtf.shortlink.admin.service.UserService;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
@@ -42,6 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    private final GroupService groupService;
 
     @Override
     public UserRespDTO getUserByUsername(String username) {
@@ -75,6 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 throw new ClientException(UserErroeCodeEnum.USER_SAVE_ERROR);
             }
             userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
+            groupService.saveGroup(requestParam.getUsername(),"default");
         } catch (DuplicateKeyException exception) {
             throw new ClientException(UserErroeCodeEnum.User_EXIST);
         } finally {

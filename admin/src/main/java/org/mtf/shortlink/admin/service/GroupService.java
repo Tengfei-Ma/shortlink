@@ -2,7 +2,6 @@ package org.mtf.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.mtf.shortlink.admin.dao.entity.GroupDO;
-import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
@@ -14,10 +13,16 @@ import java.util.List;
  */
 public interface GroupService extends IService<GroupDO> {
     /**
-     * 新增短链接分组
-     * @param requestParam 分组名称
+     * 已登录用户新增短链接分组
+     * @param name 短链接名
      */
-    void saveGroup(ShortLinkGroupSaveReqDTO requestParam);
+    void saveGroup(String name);
+    /**
+     * 注册时新增默认短链接分组
+     * @param username 注册用户名
+     * @param name 短链接名
+     */
+    void saveGroup(String username,String name);
 
     /**
      * 查询短链接分组
@@ -42,4 +47,6 @@ public interface GroupService extends IService<GroupDO> {
      * @param requestParam 分组标识和排序字段
      */
     void sortGroup(List<ShortlinkGroupSortReqDTO> requestParam);
+
+
 }
