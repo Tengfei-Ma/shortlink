@@ -90,11 +90,10 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             throw new ServiceException(ShortlinkErrorCodeEnum.SHORTLINK_EXIST);
         }
         //缓存预热，将刚创建的短链接存入缓存并根据有效期设置缓存过期时间
-        long ms=LinkUtil.getShortlinkCacheValidTime(requestParam.getValidDate());
         stringRedisTemplate.opsForValue().set(
                 String.format(GOTO_SHORT_LINK_KEY,fullShortUrl),
                 requestParam.getOriginUrl(),
-                ms,TimeUnit.MILLISECONDS);
+                LinkUtil.getShortlinkCacheValidTime(requestParam.getValidDate()),TimeUnit.MILLISECONDS);
         shortUriCreateCachePenetrationBloomFilter.add(fullShortUrl);
         ShortlinkCreateRespDTO shortlinkCreateRespDTO = new ShortlinkCreateRespDTO();
         shortlinkCreateRespDTO.setGid(requestParam.getGid());
@@ -196,7 +195,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         }
         String gotoIsNull = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
         if(StrUtil.isNotBlank(gotoIsNull)){
-            //gotoIsNull="-"，布隆过滤器误判了，布隆过滤器认为存在但mysql不存在
+            //gotoIsNull="-"，布隆过滤器误判了，布隆过滤器认为存在但mysql不存在，移至回收站是逻辑删除，刚好也符合误判情况
             ((HttpServletResponse) response).sendRedirect("/page/notfound");
             return ;
         }
@@ -232,7 +231,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 stringRedisTemplate.opsForValue().set(
                         String.format(GOTO_SHORT_LINK_KEY,fullShortUrl),
                         shortlinkDO.getOriginUrl(),
-                        LinkUtil.getShortlinkCacheValidTime(shortlinkDO.getValidDate()),TimeUnit.MICROSECONDS);
+                        LinkUtil.getShortlinkCacheValidTime(shortlinkDO.getValidDate()),TimeUnit.MICROSECONDS
+                );
                 ((HttpServletResponse)response).sendRedirect(shortlinkDO.getOriginUrl());
             } catch (IOException e) {
                 throw new RuntimeException(e);
