@@ -14,6 +14,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.mtf.shortlink.project.common.convention.exception.ClientException;
 import org.mtf.shortlink.project.common.convention.exception.ServiceException;
@@ -172,28 +173,25 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         }
     }
 
+    @SneakyThrows
     @Override
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
         String serverName = request.getServerName();
         String fullShortUrl=serverName+"/"+shortUri;
         String originalLink= stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY,fullShortUrl));
         if(StrUtil.isNotBlank(originalLink)){
-            try {
-                ((HttpServletResponse) response).sendRedirect(originalLink);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            ((HttpServletResponse) response).sendRedirect(originalLink);
             return;
         }
         boolean contains = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
         if(!contains){
-            //page not found
+            ((HttpServletResponse) response).sendRedirect("/page/notfound");
             return ;
         }
         String gotoIsNull = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
         if(StrUtil.isNotBlank(gotoIsNull)){
             //gotoIsNull="-"，布隆过滤器误判了，布隆过滤器认为存在但mysql不存在
-            //page not found
+            ((HttpServletResponse) response).sendRedirect("/page/notfound");
             return ;
         }
 
@@ -202,11 +200,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         try{
             originalLink= stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY,fullShortUrl));
             if(StrUtil.isNotBlank(originalLink)){
-                try {
-                    ((HttpServletResponse) response).sendRedirect(originalLink);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                ((HttpServletResponse) response).sendRedirect(originalLink);
                 return;
             }
             LambdaQueryWrapper<ShortlinkGotoDO> gidQueryWrapper = Wrappers.lambdaQuery(ShortlinkGotoDO.class)
@@ -214,7 +208,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             ShortlinkGotoDO shortlinkGotoDO = shortlinkGotoMapper.selectOne(gidQueryWrapper);
             if(shortlinkGotoDO==null){
                 stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY,fullShortUrl),"-",30L, TimeUnit.MINUTES);
-                //page not found
+                ((HttpServletResponse) response).sendRedirect("/page/notfound");
                 return;
             }
             LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
@@ -225,7 +219,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             ShortlinkDO shortlinkDO = baseMapper.selectOne(queryWrapper);
             if(shortlinkDO==null||(shortlinkDO.getValidDate()!=null&&shortlinkDO.getValidDate().before(new Date()))){
                 stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY,fullShortUrl),"-",30L, TimeUnit.MINUTES);
-                //page not found
+                ((HttpServletResponse) response).sendRedirect("/page/notfound");
                 return;
             }
             try {
