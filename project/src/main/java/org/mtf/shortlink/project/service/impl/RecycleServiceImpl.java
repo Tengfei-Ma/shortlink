@@ -20,6 +20,7 @@ import static org.mtf.shortlink.project.common.constant.RedisCacheConstant.GOTO_
 @RequiredArgsConstructor
 public class RecycleServiceImpl extends ServiceImpl<ShortlinkMapper, ShortlinkDO> implements RecycleService {
     private final StringRedisTemplate stringRedisTemplate;
+
     @Override
     public void createRecycleBin(RecycleBinCreateReqDTO requestParam) {
         LambdaUpdateWrapper<ShortlinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortlinkDO.class)
@@ -27,10 +28,10 @@ public class RecycleServiceImpl extends ServiceImpl<ShortlinkMapper, ShortlinkDO
                 .eq(ShortlinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                 .eq(ShortlinkDO::getEnableStatus, 0)
                 .eq(ShortlinkDO::getDelFlag, 0);
-        ShortlinkDO shortlinkDO=new ShortlinkDO();
+        ShortlinkDO shortlinkDO = new ShortlinkDO();
         shortlinkDO.setEnableStatus(1);
-        baseMapper.update(shortlinkDO,updateWrapper);
-
-        stringRedisTemplate.delete(String.format(GOTO_SHORT_LINK_KEY,requestParam.getFullShortUrl()));
+        baseMapper.update(shortlinkDO, updateWrapper);
+        //逻辑删除后将缓存中的短链接跳转移除
+        stringRedisTemplate.delete(String.format(GOTO_SHORT_LINK_KEY, requestParam.getFullShortUrl()));
     }
 }
