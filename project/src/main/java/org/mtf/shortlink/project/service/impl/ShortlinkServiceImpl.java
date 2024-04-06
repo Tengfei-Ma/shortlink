@@ -16,6 +16,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.mtf.shortlink.project.common.convention.exception.ClientException;
 import org.mtf.shortlink.project.common.convention.exception.ServiceException;
 import org.mtf.shortlink.project.common.enums.ShortlinkErrorCodeEnum;
@@ -41,6 +44,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +73,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
 
         shortlinkDO.setShortUri(shortUri);
         shortlinkDO.setFullShortUrl(fullShortUrl);
+        shortlinkDO.setFavicon(getFavicon(requestParam.getOriginUrl()));
         shortlinkDO.setClickNum(0);
         shortlinkDO.setEnableStatus(0);
 
@@ -237,6 +243,9 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         }
     }
 
+    /**
+     * 根据原始链接生成短链接，防止重复，尝试10次
+     */
     private String generateShortUri(String domain, String originUrl) {
         int customGenerateCount = 1;
         String shortUri;
@@ -251,5 +260,25 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             customGenerateCount++;
         }
         return shortUri;
+    }
+
+    /**
+     * 根据原始链接获取网站图标
+     */
+    @SneakyThrows
+    private String getFavicon(String url){
+        URL targetUrl = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) targetUrl.openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+        int responseCode = connection.getResponseCode();
+        if (HttpURLConnection.HTTP_OK == responseCode) {
+            Document document = Jsoup.connect(url).get();
+            Element faviconLink = document.select("link[rel~=(?i)^(shortcut )?icon]").first();
+            if (faviconLink != null) {
+                return faviconLink.attr("abs:href");
+            }
+        }
+        return null;
     }
 }
