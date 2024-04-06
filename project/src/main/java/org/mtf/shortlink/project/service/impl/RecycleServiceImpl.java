@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.mtf.shortlink.project.dao.entity.ShortlinkDO;
 import org.mtf.shortlink.project.dao.mapper.ShortlinkMapper;
 import org.mtf.shortlink.project.dto.req.RecycleBinCreateReqDTO;
-import org.mtf.shortlink.project.dto.req.ShortlinkPageReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
 import org.mtf.shortlink.project.service.RecycleService;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -42,13 +42,13 @@ public class RecycleServiceImpl extends ServiceImpl<ShortlinkMapper, ShortlinkDO
     }
 
     @Override
-    public IPage<ShortlinkPageRespDTO> pageRecycleBin(ShortlinkPageReqDTO requestParam) {
+    public IPage<ShortlinkPageRespDTO> pageRecycleBin(ShortLinkRecycleBinPageReqDTO requestParam) {
         LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
-                .eq(ShortlinkDO::getGid, requestParam.getGid())
+                .in(ShortlinkDO::getGid, requestParam.getGidList())
                 .eq(ShortlinkDO::getEnableStatus, 1)
                 .eq(ShortlinkDO::getDelFlag, 0)
-                .orderByDesc(ShortlinkDO::getCreateTime);
-        Page<ShortlinkDO> page = page(requestParam, queryWrapper);
+                .orderByDesc(ShortlinkDO::getUpdateTime);
+        Page<ShortlinkDO> page = baseMapper.selectPage(requestParam, queryWrapper);
         return page.convert(shortlinkDO -> BeanUtil.toBean(shortlinkDO, ShortlinkPageRespDTO.class));
     }
 }
