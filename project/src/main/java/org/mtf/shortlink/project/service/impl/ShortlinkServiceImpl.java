@@ -31,6 +31,7 @@ import org.mtf.shortlink.project.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
 import org.mtf.shortlink.project.service.ShortlinkService;
 import org.mtf.shortlink.project.toolkit.HashUtil;
+import org.mtf.shortlink.project.toolkit.LinkUtil;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -39,12 +40,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
-import static org.mtf.shortlink.project.common.constant.RedisCacheConstant.GOTO_SHORT_LINK_KEY;
-import static org.mtf.shortlink.project.common.constant.RedisCacheConstant.LOCK_GOTO_SHORT_LINK_KEY;
+import static org.mtf.shortlink.project.common.constant.RedisCacheConstant.*;
 
 /**
  * 短链接接口实现层
@@ -80,8 +82,12 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             }
             throw new ServiceException(ShortlinkErrorCodeEnum.SHORTLINK_EXIST);
         }
-        //TODO 新增的短链接放入缓存？
-
+        //缓存预热，将刚创建的短链接存入缓存并根据有效期设置缓存过期时间
+        long ms=LinkUtil.getShortlinkCacheValidTime(requestParam.getValidDate());
+        stringRedisTemplate.opsForValue().set(
+                String.format(GOTO_SHORT_LINK_KEY,fullShortUrl),
+                requestParam.getOriginUrl(),
+                ms,TimeUnit.MILLISECONDS);
         shortUriCreateCachePenetrationBloomFilter.add(fullShortUrl);
         ShortlinkCreateRespDTO shortlinkCreateRespDTO = new ShortlinkCreateRespDTO();
         shortlinkCreateRespDTO.setGid(requestParam.getGid());
@@ -179,6 +185,17 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             }
             return;
         }
+        boolean contains = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
+        if(!contains){
+            //page not found
+            return ;
+        }
+        String gotoIsNull = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
+        if(StrUtil.isNotBlank(gotoIsNull)){
+            //gotoIsNull="-"，布隆过滤器误判了，布隆过滤器认为存在但mysql不存在
+            //page not found
+            return ;
+        }
 
         RLock lock = redissonClient.getLock(String.format(LOCK_GOTO_SHORT_LINK_KEY, fullShortUrl));
         lock.lock();
@@ -196,6 +213,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                     .eq(ShortlinkGotoDO::getFullShortUrl, fullShortUrl);
             ShortlinkGotoDO shortlinkGotoDO = shortlinkGotoMapper.selectOne(gidQueryWrapper);
             if(shortlinkGotoDO==null){
+                stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY,fullShortUrl),"-",30L, TimeUnit.MINUTES);
+                //page not found
                 return;
             }
             LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
@@ -204,11 +223,16 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                     .eq(ShortlinkDO::getEnableStatus,0)
                     .eq(ShortlinkDO::getDelFlag,0);
             ShortlinkDO shortlinkDO = baseMapper.selectOne(queryWrapper);
-            if(shortlinkDO==null){
+            if(shortlinkDO==null||(shortlinkDO.getValidDate()!=null&&shortlinkDO.getValidDate().before(new Date()))){
+                stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY,fullShortUrl),"-",30L, TimeUnit.MINUTES);
+                //page not found
                 return;
             }
             try {
-                stringRedisTemplate.opsForValue().set(String.format(GOTO_SHORT_LINK_KEY,fullShortUrl),shortlinkDO.getOriginUrl());
+                stringRedisTemplate.opsForValue().set(
+                        String.format(GOTO_SHORT_LINK_KEY,fullShortUrl),
+                        shortlinkDO.getOriginUrl(),
+                        LinkUtil.getShortlinkCacheValidTime(shortlinkDO.getValidDate()),TimeUnit.MICROSECONDS);
                 ((HttpServletResponse)response).sendRedirect(shortlinkDO.getOriginUrl());
             } catch (IOException e) {
                 throw new RuntimeException(e);
