@@ -65,4 +65,15 @@ public interface ShortlinkRemoteService {
         //TODO HttpUtil无法发送put请求？
         String resp = HttpUtil.post("http://127.0.0.1:8001/api/shortlink/v1/page",JSON.toJSONString(requestParam));
     }
+
+    /**
+     * 根据原始链接获取网站标题
+     * @param url 原始链接
+     * @return 网站标题
+     */
+    default Result<String> getTitleByUrl(String url){
+        String resp = HttpUtil.get("http://127.0.0.1:8001/api/shortlink/v1/title?url="+url);
+        return JSON.parseObject(resp, new TypeReference<>() {
+        });
+    }
 }
