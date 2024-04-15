@@ -25,3 +25,7 @@ spring:
       host: 192.168.88.128
       port: 6379
       password: 123456
+short-link:
+  stats:
+    locale:
+      amap-key: 824c511f0997586ea016f979fdb23087
