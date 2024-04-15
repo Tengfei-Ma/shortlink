@@ -8,10 +8,10 @@ public class test {
                 "ENGINE = InnoDB\n" +
                 "DEFAULT CHARACTER SET = utf8mb4\n" +
                 "COMMENT = '路由表（完整短链接路由分组标识）';";
+        String deleteSql="delete from t_link_goto_%d;";
         for (int i = 0; i < 16; i++) {
-            System.out.printf((sql) + "%n",i);
+            System.out.printf((deleteSql) + "%n",i);
         }
 
     }
-
 }

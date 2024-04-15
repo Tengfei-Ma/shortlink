@@ -98,7 +98,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         ShortlinkCreateRespDTO shortlinkCreateRespDTO = new ShortlinkCreateRespDTO();
         shortlinkCreateRespDTO.setGid(requestParam.getGid());
         shortlinkCreateRespDTO.setOriginUrl(requestParam.getOriginUrl());
-        shortlinkCreateRespDTO.setFullShortUrl("http://" + fullShortUrl);
+        shortlinkCreateRespDTO.setFullShortUrl(fullShortUrl);
         return shortlinkCreateRespDTO;
     }
 

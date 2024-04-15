@@ -6,6 +6,7 @@ import org.mtf.shortlink.admin.common.convention.result.Result;
 import org.mtf.shortlink.admin.common.convention.result.Results;
 import org.mtf.shortlink.admin.dto.req.RecycleBinCreateReqDTO;
 import org.mtf.shortlink.admin.dto.req.RecycleBinRecoverReqDTO;
+import org.mtf.shortlink.admin.dto.req.RecycleBinRemoveReqDTO;
 import org.mtf.shortlink.admin.remote.ShortlinkRemoteService;
 import org.mtf.shortlink.admin.remote.dto.req.ShortLinkRecycleBinPageReqDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkPageRespDTO;
@@ -46,6 +47,14 @@ public class RecycleBinController {
     @PostMapping("/api/shortlink/admin/v1/recycle-bin/recover")
     public Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam){
         shortlinkRemoteService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+    /**
+     * 短链接从回收站彻底删除
+     */
+    @PostMapping("/api/shortlink/admin/v1/recycle-bin/remove")
+    public Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam){
+        shortlinkRemoteService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }
