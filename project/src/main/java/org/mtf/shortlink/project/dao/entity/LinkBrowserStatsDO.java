@@ -7,11 +7,11 @@ import org.mtf.shortlink.project.common.database.BaseDO;
 import java.util.Date;
 
 /**
- * 短链接访问操作系统统计实体
+ * 短链接访问浏览器统计实体
  */
 @Data
-@TableName("t_link_os_stats")
-public class LinkOsStatsDO extends BaseDO {
+@TableName("t_link_browser_stats")
+public class LinkBrowserStatsDO extends BaseDO {
     /**
      * id
      */
@@ -38,7 +38,7 @@ public class LinkOsStatsDO extends BaseDO {
     private Integer cnt;
 
     /**
-     * 操作系统
+     * 浏览器
      */
-    private String os;
+    private String browser;
 }

@@ -71,9 +71,10 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
 
-    private final LinkAccessStatusMapper linkAccessStatusMapper;
+    private final LinkAccessStatsMapper linkAccessStatsMapper;
     private final LinkLocalStatsMapper linkLocalStatsMapper;
     private final LinkOsStatsMapper linkOsStatsMapper;
+    private final LinkBrowserStatsMapper linkBrowserStatsMapper;
 
 
 
@@ -307,7 +308,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             linkAccessStatsDO.setHour(hour);
             linkAccessStatsDO.setWeekday(week);
             linkAccessStatsDO.setDate(new Date());
-            linkAccessStatusMapper.shortLinkStats(linkAccessStatsDO);
+            linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
 
             //该功能需要调用高德的ip定位付费api，模拟实现即可
             Map<String,Object> localParam=new HashMap<>();
@@ -338,6 +339,14 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkOsStatsDO.setCnt(1);
                 linkOsStatsDO.setOs(LinkUtil.getOs((HttpServletRequest) request));
                 linkOsStatsMapper.shortlinkOsStats(linkOsStatsDO);
+
+                LinkBrowserStatsDO linkBrowserStatsDO=new LinkBrowserStatsDO();
+                linkBrowserStatsDO.setFullShortUrl(fullShortUrl);
+                linkBrowserStatsDO.setGid(gid);
+                linkBrowserStatsDO.setDate(new Date());
+                linkBrowserStatsDO.setCnt(1);
+                linkBrowserStatsDO.setBrowser(LinkUtil.getBrowser((HttpServletRequest) request));
+                linkBrowserStatsMapper.shortlinkBrowserStats(linkBrowserStatsDO);
             }
 
         } catch (Throwable e) {

@@ -8,7 +8,7 @@ import org.mtf.shortlink.project.dao.entity.LinkAccessStatsDO;
 /**
  * 短链接基础访问统计持久层
  */
-public interface LinkAccessStatusMapper extends BaseMapper<LinkAccessStatsDO> {
+public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
     /**
      * 记录访问次数
      * @param linkAccessStatsDO 基础访问统计实体
