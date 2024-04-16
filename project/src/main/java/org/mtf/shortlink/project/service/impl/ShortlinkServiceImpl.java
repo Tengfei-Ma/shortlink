@@ -30,14 +30,8 @@ import org.mtf.shortlink.project.common.convention.exception.ClientException;
 import org.mtf.shortlink.project.common.convention.exception.ServiceException;
 import org.mtf.shortlink.project.common.enums.ShortlinkErrorCodeEnum;
 import org.mtf.shortlink.project.common.enums.ValidDateTypeEnum;
-import org.mtf.shortlink.project.dao.entity.LinkAccessStatsDO;
-import org.mtf.shortlink.project.dao.entity.LinkLocalStatsDO;
-import org.mtf.shortlink.project.dao.entity.ShortlinkDO;
-import org.mtf.shortlink.project.dao.entity.ShortlinkGotoDO;
-import org.mtf.shortlink.project.dao.mapper.LinkAccessStatusMapper;
-import org.mtf.shortlink.project.dao.mapper.LinkLocalStatsMapper;
-import org.mtf.shortlink.project.dao.mapper.ShortlinkGotoMapper;
-import org.mtf.shortlink.project.dao.mapper.ShortlinkMapper;
+import org.mtf.shortlink.project.dao.entity.*;
+import org.mtf.shortlink.project.dao.mapper.*;
 import org.mtf.shortlink.project.dto.req.ShortlinkCreateReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkPageReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkUpdateReqDTO;
@@ -79,6 +73,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
 
     private final LinkAccessStatusMapper linkAccessStatusMapper;
     private final LinkLocalStatsMapper linkLocalStatsMapper;
+    private final LinkOsStatsMapper linkOsStatsMapper;
 
 
 
@@ -335,6 +330,14 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkLocalStatsDO.setCity(StrUtil.equals(city,"[]")?"unknown":city);
                 linkLocalStatsDO.setAdcode(StrUtil.equals(adCode,"[]")?"unknown":adCode);
                 linkLocalStatsMapper.shortlinkLocalStats(linkLocalStatsDO);
+
+                LinkOsStatsDO linkOsStatsDO = new LinkOsStatsDO();
+                linkOsStatsDO.setFullShortUrl(fullShortUrl);
+                linkOsStatsDO.setGid(gid);
+                linkOsStatsDO.setDate(new Date());
+                linkOsStatsDO.setCnt(1);
+                linkOsStatsDO.setOs(LinkUtil.getOs((HttpServletRequest) request));
+                linkOsStatsMapper.shortlinkOsStats(linkOsStatsDO);
             }
 
         } catch (Throwable e) {

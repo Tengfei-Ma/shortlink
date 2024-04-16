@@ -2,6 +2,7 @@ package org.mtf.shortlink.project.toolkit;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Date;
 import java.util.Optional;
@@ -21,5 +22,21 @@ public class LinkUtil {
         return Optional.ofNullable(validDate)
                 .map(date -> DateUtil.between(new Date(), date, DateUnit.MS))
                 .orElse(PERMANENT_DEFAULT_CACHE_VALID_DATE);
+    }
+    public static String getOs(HttpServletRequest request){
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent.toLowerCase().contains("windows")) {
+            return "Windows";
+        } else if (userAgent.toLowerCase().contains("mac")) {
+            return "Mac OS";
+        } else if (userAgent.toLowerCase().contains("linux")) {
+            return "Linux";
+        } else if (userAgent.toLowerCase().contains("android")) {
+            return "Android";
+        } else if (userAgent.toLowerCase().contains("iphone") || userAgent.toLowerCase().contains("ipad")) {
+            return "iOS";
+        } else {
+            return "unknown";
+        }
     }
 }
