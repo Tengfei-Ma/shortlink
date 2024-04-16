@@ -78,6 +78,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
     private final LinkAccessLogsMapper linkAccessLogsMapper;
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
+    private final LinkNetworkStatsMapper linkNetworkStatsMapper;
 
 
     @Value("${short-link.stats.locale.amap-key}")
@@ -371,6 +372,14 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkDeviceStatsDO.setCnt(1);
                 linkDeviceStatsDO.setDevice(LinkUtil.getDevice((HttpServletRequest) request));
                 linkDeviceStatsMapper.shortlinkDeviceStats(linkDeviceStatsDO);
+
+                LinkNetworkStatsDO linkNetworkStatsDO = new LinkNetworkStatsDO();
+                linkNetworkStatsDO.setFullShortUrl(fullShortUrl);
+                linkNetworkStatsDO.setGid(gid);
+                linkNetworkStatsDO.setDate(new Date());
+                linkNetworkStatsDO.setCnt(1);
+                linkNetworkStatsDO.setNetwork(LinkUtil.getNetwork((HttpServletRequest) request));
+                linkNetworkStatsMapper.shortlinkNetworkStats(linkNetworkStatsDO);
             }
 
         } catch (Throwable e) {
