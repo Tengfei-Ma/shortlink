@@ -6,7 +6,7 @@ import lombok.Data;
  * 短链接访客监控响应参数
  */
 @Data
-public class ShortLinkStatsUvRespDTO {
+public class ShortlinkStatsUvRespDTO {
 
     /**
      * 统计

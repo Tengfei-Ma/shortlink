@@ -1,7 +1,7 @@
 package org.mtf.shortlink.project.service;
 
 import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
-import org.mtf.shortlink.project.dto.resp.ShortLinkStatsRespDTO;
+import org.mtf.shortlink.project.dto.resp.ShortlinkStatsRespDTO;
 
 /**
  * 短链接监控接口层
@@ -13,5 +13,5 @@ public interface ShortlinkStatsService{
      * @param requestParam 获取短链接监控数据入参
      * @return 短链接监控数据
      */
-    ShortLinkStatsRespDTO oneShortLinkStats(ShortLinkStatsReqDTO requestParam);
+    ShortlinkStatsRespDTO oneShortLinkStats(ShortLinkStatsReqDTO requestParam);
 }

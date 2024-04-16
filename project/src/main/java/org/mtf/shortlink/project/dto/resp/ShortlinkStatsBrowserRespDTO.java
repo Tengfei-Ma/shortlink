@@ -3,10 +3,10 @@ package org.mtf.shortlink.project.dto.resp;
 import lombok.Data;
 
 /**
- * 短链接访问网络监控响应参数
+ * 短链接浏览器监控响应参数
  */
 @Data
-public class ShortLinkStatsNetworkRespDTO {
+public class ShortlinkStatsBrowserRespDTO {
 
     /**
      * 统计
@@ -14,9 +14,9 @@ public class ShortLinkStatsNetworkRespDTO {
     private Integer cnt;
 
     /**
-     * 访问网络
+     * 浏览器
      */
-    private String network;
+    private String browser;
 
     /**
      * 占比

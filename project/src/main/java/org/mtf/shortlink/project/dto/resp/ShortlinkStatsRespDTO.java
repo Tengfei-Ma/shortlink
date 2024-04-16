@@ -8,7 +8,7 @@ import java.util.List;
  * 短链接监控响应参数
  */
 @Data
-public class ShortLinkStatsRespDTO {
+public class ShortlinkStatsRespDTO {
 
     /**
      * 访问量
@@ -28,12 +28,12 @@ public class ShortLinkStatsRespDTO {
     /**
      * 基础访问详情
      */
-    private List<ShortLinkStatsAccessDailyRespDTO> daily;
+    private List<ShortlinkStatsAccessDailyRespDTO> daily;
 
     /**
      * 地区访问详情（仅国内）
      */
-    private List<ShortLinkStatsLocaleCNRespDTO> localeCnStats;
+    private List<ShortlinkStatsLocalCNRespDTO> localCnStats;
 
     /**
      * 24小时访问分布详情
@@ -43,7 +43,7 @@ public class ShortLinkStatsRespDTO {
     /**
      * 高频访问IP详情
      */
-    private List<ShortLinkStatsTopIpRespDTO> topIpStats;
+    private List<ShortlinkStatsTopIpRespDTO> topIpStats;
 
     /**
      * 一周七天访问分布详情
@@ -53,25 +53,25 @@ public class ShortLinkStatsRespDTO {
     /**
      * 浏览器访问详情
      */
-    private List<ShortLinkStatsBrowserRespDTO> browserStats;
+    private List<ShortlinkStatsBrowserRespDTO> browserStats;
 
     /**
      * 操作系统访问详情
      */
-    private List<ShortLinkStatsOsRespDTO> osStats;
+    private List<ShortlinkStatsOsRespDTO> osStats;
 
     /**
      * 访客访问类型详情
      */
-    private List<ShortLinkStatsUvRespDTO> uvTypeStats;
+    private List<ShortlinkStatsUvRespDTO> uvTypeStats;
 
     /**
      * 访问设备类型详情
      */
-    private List<ShortLinkStatsDeviceRespDTO> deviceStats;
+    private List<ShortlinkStatsDeviceRespDTO> deviceStats;
 
     /**
      * 访问网络类型详情
      */
-    private List<ShortLinkStatsNetworkRespDTO> networkStats;
+    private List<ShortlinkStatsNetworkRespDTO> networkStats;
 }
