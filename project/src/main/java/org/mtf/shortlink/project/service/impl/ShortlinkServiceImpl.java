@@ -55,6 +55,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.mtf.shortlink.project.common.constant.RedisCacheConstant.*;
 import static org.mtf.shortlink.project.common.constant.ShortlinkConstant.AMAP_REMOTE_URL;
@@ -75,7 +76,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     private final LinkLocalStatsMapper linkLocalStatsMapper;
     private final LinkOsStatsMapper linkOsStatsMapper;
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
-
+    private final LinkAccessLogsMapper linkAccessLogsMapper;
+    private final LinkDeviceStatsMapper linkDeviceStatsMapper;
 
 
     @Value("${short-link.stats.locale.amap-key}")
@@ -264,14 +266,16 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         Cookie[] cookies = ((HttpServletRequest) request).getCookies();
         AtomicBoolean uvFlag = new AtomicBoolean();
         try {
+            AtomicReference<String> uv=new AtomicReference<>();
             Runnable addResponseCookie = () -> {     //请求不携带cookie，在响应中添加cookie，下次请求就会携带cookie
                 String cookieUUID = UUID.fastUUID().toString();
-                Cookie uvCookie = new Cookie("uv", cookieUUID);
+                uv.set(cookieUUID);
+                Cookie uvCookie = new Cookie("uv", uv.get());
                 uvCookie.setMaxAge(30 * 24 * 60 * 60);
                 uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf("/"), fullShortUrl.length()));
                 ((HttpServletResponse) response).addCookie(uvCookie);
                 uvFlag.set(true);
-                stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, cookieUUID);
+                stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, uv.get());
 
             };
             if (ArrayUtil.isNotEmpty(cookies)) {
@@ -280,8 +284,9 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                         .findFirst()
                         .map(Cookie::getValue)
                         .ifPresentOrElse((cookieUUID -> {     //请求携带cookie，cookie加入redis的集合
+                            uv.set(cookieUUID);
                             // 集合中存在加入失败，代表是老用户，uvFlag为false，集合中不存在加入成功，代表是新用户，uvFlag为true
-                            Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, cookieUUID);
+                            Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl,uv.get());
                             uvFlag.set(uvAdded != null && uvAdded > 0L);
                         }), addResponseCookie);
             } else {
@@ -311,42 +316,61 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
 
             //该功能需要调用高德的ip定位付费api，模拟实现即可
-            Map<String,Object> localParam=new HashMap<>();
-            localParam.put("key",statsLocaleAmapKey);
-            localParam.put("ip",remoteAddr);
+            Map<String, Object> localParam = new HashMap<>();
+            localParam.put("key", statsLocaleAmapKey);
+            localParam.put("ip", remoteAddr);
             String resp = HttpUtil.get(AMAP_REMOTE_URL, localParam);
             JSONObject localObj = JSON.parseObject(resp);
-            String infoCode=localObj.getString("infocode");
-            if(StrUtil.isNotBlank(infoCode)&&StrUtil.equals(infoCode,"10000")){
-                String province=localObj.getString("province");
-                String city=localObj.getString("city");
-                String adCode=localObj.getString("adcode");
-                LinkLocalStatsDO linkLocalStatsDO=new LinkLocalStatsDO();
+            String infoCode = localObj.getString("infocode");
+            if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, "10000")) {
+                String province = localObj.getString("province");
+                String city = localObj.getString("city");
+                String adCode = localObj.getString("adcode");
+                LinkLocalStatsDO linkLocalStatsDO = new LinkLocalStatsDO();
                 linkLocalStatsDO.setFullShortUrl(fullShortUrl);
                 linkLocalStatsDO.setGid(gid);
                 linkLocalStatsDO.setDate(new Date());
                 linkLocalStatsDO.setCnt(1);
                 linkLocalStatsDO.setCountry("中国");
-                linkLocalStatsDO.setProvince(StrUtil.equals(province,"[]")?"unknown":province);
-                linkLocalStatsDO.setCity(StrUtil.equals(city,"[]")?"unknown":city);
-                linkLocalStatsDO.setAdcode(StrUtil.equals(adCode,"[]")?"unknown":adCode);
+                linkLocalStatsDO.setProvince(StrUtil.equals(province, "[]") ? "unknown" : province);
+                linkLocalStatsDO.setCity(StrUtil.equals(city, "[]") ? "unknown" : city);
+                linkLocalStatsDO.setAdcode(StrUtil.equals(adCode, "[]") ? "unknown" : adCode);
                 linkLocalStatsMapper.shortlinkLocalStats(linkLocalStatsDO);
 
+                String os=LinkUtil.getOs((HttpServletRequest) request);
                 LinkOsStatsDO linkOsStatsDO = new LinkOsStatsDO();
                 linkOsStatsDO.setFullShortUrl(fullShortUrl);
                 linkOsStatsDO.setGid(gid);
                 linkOsStatsDO.setDate(new Date());
                 linkOsStatsDO.setCnt(1);
-                linkOsStatsDO.setOs(LinkUtil.getOs((HttpServletRequest) request));
+                linkOsStatsDO.setOs(os);
                 linkOsStatsMapper.shortlinkOsStats(linkOsStatsDO);
 
-                LinkBrowserStatsDO linkBrowserStatsDO=new LinkBrowserStatsDO();
+                String browser=LinkUtil.getBrowser((HttpServletRequest) request);
+                LinkBrowserStatsDO linkBrowserStatsDO = new LinkBrowserStatsDO();
                 linkBrowserStatsDO.setFullShortUrl(fullShortUrl);
                 linkBrowserStatsDO.setGid(gid);
                 linkBrowserStatsDO.setDate(new Date());
                 linkBrowserStatsDO.setCnt(1);
-                linkBrowserStatsDO.setBrowser(LinkUtil.getBrowser((HttpServletRequest) request));
+                linkBrowserStatsDO.setBrowser(browser);
                 linkBrowserStatsMapper.shortlinkBrowserStats(linkBrowserStatsDO);
+
+                LinkAccessLogsDO linkAccessLogsDO=new LinkAccessLogsDO();
+                linkAccessLogsDO.setFullShortUrl(fullShortUrl);
+                linkAccessLogsDO.setGid(gid);
+                linkAccessLogsDO.setUser(uv.get());
+                linkAccessLogsDO.setBrowser(browser);
+                linkAccessLogsDO.setOs(os);
+                linkAccessLogsDO.setIp(remoteAddr);
+                linkAccessLogsMapper.insert(linkAccessLogsDO);
+
+                LinkDeviceStatsDO linkDeviceStatsDO=new LinkDeviceStatsDO();
+                linkDeviceStatsDO.setFullShortUrl(fullShortUrl);
+                linkDeviceStatsDO.setGid(gid);
+                linkDeviceStatsDO.setDate(new Date());
+                linkDeviceStatsDO.setCnt(1);
+                linkDeviceStatsDO.setDevice(LinkUtil.getDevice((HttpServletRequest) request));
+                linkDeviceStatsMapper.shortlinkDeviceStats(linkDeviceStatsDO);
             }
 
         } catch (Throwable e) {
