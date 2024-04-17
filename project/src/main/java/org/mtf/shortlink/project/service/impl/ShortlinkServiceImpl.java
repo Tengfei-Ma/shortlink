@@ -95,6 +95,9 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         shortlinkDO.setFavicon(getFavicon(requestParam.getOriginUrl()));
         shortlinkDO.setClickNum(0);
         shortlinkDO.setEnableStatus(0);
+        shortlinkDO.setTotalPv(0);
+        shortlinkDO.setTotalUv(0);
+        shortlinkDO.setTotalUip(0);
 
         ShortlinkGotoDO shortlinkGotoDO = new ShortlinkGotoDO();
         shortlinkGotoDO.setFullShortUrl(fullShortUrl);
@@ -387,6 +390,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkAccessLogsDO.setDevice(device);
                 linkAccessLogsDO.setLocal(StrUtil.join("-", "中国", actualProvince, actualCity));
                 linkAccessLogsMapper.insert(linkAccessLogsDO);
+
+                baseMapper.incrementStats(gid, fullShortUrl, 1, uvFlag.get() ? 1 : 0, uipFlag ? 1 : 0);
             }
 
         } catch (Throwable e) {
