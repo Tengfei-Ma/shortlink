@@ -6,7 +6,7 @@ import org.mtf.shortlink.project.dao.entity.ShortlinkDO;
 import org.mtf.shortlink.project.dto.req.RecycleBinCreateReqDTO;
 import org.mtf.shortlink.project.dto.req.RecycleBinRecoverReqDTO;
 import org.mtf.shortlink.project.dto.req.RecycleBinRemoveReqDTO;
-import org.mtf.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkRecycleBinPageReqDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
 
 /**
@@ -23,7 +23,7 @@ public interface RecycleService extends IService<ShortlinkDO> {
      * @param requestParam 分页查询短链接请求参数
      * @return 分页查询短链接相应响应参数
      */
-    IPage<ShortlinkPageRespDTO> pageRecycleBin(ShortLinkRecycleBinPageReqDTO requestParam);
+    IPage<ShortlinkPageRespDTO> pageRecycleBin(ShortlinkRecycleBinPageReqDTO requestParam);
 
     /**
      * 短链接从回收站恢复

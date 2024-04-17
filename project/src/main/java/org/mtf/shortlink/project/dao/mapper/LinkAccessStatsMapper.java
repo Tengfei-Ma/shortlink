@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkAccessStatsDO;
-import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
             uv = uv + #{linkAccessStats.uv}, 
             uip = uip + #{linkAccessStats.uip};
             """)
-    void shortLinkStats(@Param("linkAccessStats") LinkAccessStatsDO linkAccessStatsDO);
+    void shortlinkStats(@Param("linkAccessStats") LinkAccessStatsDO linkAccessStatsDO);
 
     /**
      * 根据短链接获取指定日期内基础监控数据
@@ -46,7 +46,7 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
             AND date BETWEEN #{param.startDate} and #{param.endDate} 
             GROUP BY full_short_url, gid, date;
             """)
-    List<LinkAccessStatsDO> listStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    List<LinkAccessStatsDO> listStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 
     /**
      * 根据短链接获取指定日期内小时基础监控数据
@@ -60,7 +60,7 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
             AND date BETWEEN #{param.startDate} and #{param.endDate}
             GROUP BY full_short_url, gid, hour;
             """)
-    List<LinkAccessStatsDO> listHourStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    List<LinkAccessStatsDO> listHourStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
     /**
      * 根据短链接获取指定日期内星期基础监控数据
      */
@@ -73,5 +73,5 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
             AND date BETWEEN #{param.startDate} and #{param.endDate}
             GROUP BY full_short_url, gid, weekday;
             """)
-    List<LinkAccessStatsDO> listWeekdayStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    List<LinkAccessStatsDO> listWeekdayStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 }

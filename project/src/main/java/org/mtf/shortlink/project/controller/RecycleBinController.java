@@ -7,7 +7,7 @@ import org.mtf.shortlink.project.common.convention.result.Results;
 import org.mtf.shortlink.project.dto.req.RecycleBinCreateReqDTO;
 import org.mtf.shortlink.project.dto.req.RecycleBinRemoveReqDTO;
 import org.mtf.shortlink.project.dto.req.RecycleBinRecoverReqDTO;
-import org.mtf.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkRecycleBinPageReqDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
 import org.mtf.shortlink.project.service.RecycleService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,7 @@ public class RecycleBinController {
      * 分页查询回收站记录
      */
     @GetMapping("/api/shortlink/v1/recycle-bin/page")
-    public Result<IPage<ShortlinkPageRespDTO>> pageShortlink(ShortLinkRecycleBinPageReqDTO requestParam){
+    public Result<IPage<ShortlinkPageRespDTO>> pageShortlink(ShortlinkRecycleBinPageReqDTO requestParam){
         return Results.success(recycleService.pageRecycleBin(requestParam));
     }
     /**

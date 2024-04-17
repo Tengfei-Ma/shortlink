@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkLocalStatsDO;
-import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.List;
 
@@ -42,5 +42,5 @@ public interface LinkLocalStatsMapper extends BaseMapper<LinkLocalStatsDO> {
             AND date BETWEEN #{param.startDate} and #{param.endDate}
             GROUP BY full_short_url, gid, province;
             """)
-    List<LinkLocalStatsDO> listLocalByShortlink(@Param("param")ShortLinkStatsReqDTO requestParam);
+    List<LinkLocalStatsDO> listLocalByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 }

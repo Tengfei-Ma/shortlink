@@ -27,7 +27,7 @@ import java.util.List;
  * 回收站短链接分页请求参数
  */
 @Data
-public class ShortLinkRecycleBinPageReqDTO extends Page<ShortlinkDO> {
+public class ShortlinkRecycleBinPageReqDTO extends Page<ShortlinkDO> {
 
     /**
      * 分组标识集合

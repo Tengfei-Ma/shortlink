@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkBrowserStatsDO;
-import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,5 +42,5 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
             AND date BETWEEN #{param.startDate} and #{param.endDate}
             GROUP BY full_short_url, gid, browser
             """)
-    List<HashMap<String, Object>> listBrowserStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    List<HashMap<String, Object>> listBrowserStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 }

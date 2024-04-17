@@ -13,7 +13,7 @@ import org.mtf.shortlink.project.dao.mapper.ShortlinkMapper;
 import org.mtf.shortlink.project.dto.req.RecycleBinCreateReqDTO;
 import org.mtf.shortlink.project.dto.req.RecycleBinRecoverReqDTO;
 import org.mtf.shortlink.project.dto.req.RecycleBinRemoveReqDTO;
-import org.mtf.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkRecycleBinPageReqDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
 import org.mtf.shortlink.project.service.RecycleService;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -45,7 +45,7 @@ public class RecycleServiceImpl extends ServiceImpl<ShortlinkMapper, ShortlinkDO
     }
 
     @Override
-    public IPage<ShortlinkPageRespDTO> pageRecycleBin(ShortLinkRecycleBinPageReqDTO requestParam) {
+    public IPage<ShortlinkPageRespDTO> pageRecycleBin(ShortlinkRecycleBinPageReqDTO requestParam) {
         LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
                 .in(ShortlinkDO::getGid, requestParam.getGidList())
                 .eq(ShortlinkDO::getEnableStatus, 1)

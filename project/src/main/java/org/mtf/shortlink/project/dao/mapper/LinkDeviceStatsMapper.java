@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkDeviceStatsDO;
-import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.List;
 
@@ -41,5 +41,5 @@ public interface LinkDeviceStatsMapper extends BaseMapper<LinkDeviceStatsDO> {
             AND date BETWEEN #{param.startDate} and #{param.endDate}
             GROUP BY full_short_url, gid, device;
             """)
-    List<LinkDeviceStatsDO> listDeviceStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    List<LinkDeviceStatsDO> listDeviceStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 }

@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkNetworkStatsDO;
-import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.List;
 
@@ -39,5 +39,5 @@ public interface LinkNetworkStatsMapper extends BaseMapper<LinkNetworkStatsDO> {
             AND date BETWEEN #{param.startDate} and #{param.endDate}
             GROUP BY full_short_url, gid, network;
             """)
-    List<LinkNetworkStatsDO> listNetworkStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    List<LinkNetworkStatsDO> listNetworkStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 }

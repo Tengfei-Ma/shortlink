@@ -6,7 +6,7 @@ import lombok.Data;
  * 短链接监控请求参数
  */
 @Data
-public class ShortLinkStatsReqDTO {
+public class ShortlinkStatsReqDTO {
 
     /**
      * 完整短链接

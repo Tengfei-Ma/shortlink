@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkAccessLogsDO;
 import org.mtf.shortlink.project.dao.entity.LinkAccessStatsDO;
-import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +28,7 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
             AND create_time BETWEEN #{param.startDate} and #{param.endDate}
             GROUP BY full_short_url, gid;
             """)
-    LinkAccessStatsDO findPvUvUidStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    LinkAccessStatsDO findPvUvUidStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 
     /**
      * 根据短链接获取指定日期内高频访问IP数据
@@ -44,7 +44,7 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
             ORDER BY count DESC
             LIMIT 5;
             """)
-    List<HashMap<String, Object>> listTopIpByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    List<HashMap<String, Object>> listTopIpByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
     /**
      * 根据短链接获取指定日期内新旧访客数据
      */
@@ -63,5 +63,5 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
                 ) 
             AS user_counts;
             """)
-    HashMap<String, Object> findUvTypeCntByShortlink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    HashMap<String, Object> findUvTypeCntByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
 }

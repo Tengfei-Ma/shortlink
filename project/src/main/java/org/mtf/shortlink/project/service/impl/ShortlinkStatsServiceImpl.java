@@ -10,7 +10,7 @@ import org.mtf.shortlink.project.dao.entity.LinkDeviceStatsDO;
 import org.mtf.shortlink.project.dao.entity.LinkLocalStatsDO;
 import org.mtf.shortlink.project.dao.entity.LinkNetworkStatsDO;
 import org.mtf.shortlink.project.dao.mapper.*;
-import org.mtf.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 import org.mtf.shortlink.project.dto.resp.*;
 import org.mtf.shortlink.project.service.ShortlinkStatsService;
 import org.springframework.stereotype.Service;
@@ -31,13 +31,13 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
 
 
     @Override
-    public ShortlinkStatsRespDTO oneShortLinkStats(ShortLinkStatsReqDTO requestParam) {
-        List<LinkAccessStatsDO> listStatsByShortlink=linkAccessStatsMapper.listStatsByShortLink(requestParam);
+    public ShortlinkStatsRespDTO oneShortLinkStats(ShortlinkStatsReqDTO requestParam) {
+        List<LinkAccessStatsDO> listStatsByShortlink=linkAccessStatsMapper.listStatsByShortlink(requestParam);
         if(CollUtil.isEmpty(listStatsByShortlink)){
             return null;
         }
         // 基础访问数据
-        LinkAccessStatsDO pvUvUidStatsByShortlink = linkAccessLogsMapper.findPvUvUidStatsByShortLink(requestParam);
+        LinkAccessStatsDO pvUvUidStatsByShortlink = linkAccessLogsMapper.findPvUvUidStatsByShortlink(requestParam);
         // 基础访问详情
         List<ShortlinkStatsAccessDailyRespDTO> daily = new ArrayList<>();
         List<DateTime> dateTimes = DateUtil.rangeToList(DateUtil.parse(requestParam.getStartDate()), DateUtil.parse(requestParam.getEndDate()), DateField.DAY_OF_MONTH);
@@ -74,7 +74,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         });
         // 小时访问详情
         List<Integer> hourStats = new ArrayList<>();
-        List<LinkAccessStatsDO> listHourStatsByShortlink = linkAccessStatsMapper.listHourStatsByShortLink(requestParam);
+        List<LinkAccessStatsDO> listHourStatsByShortlink = linkAccessStatsMapper.listHourStatsByShortlink(requestParam);
         for (int i = 0; i < 24; i++) {
             AtomicInteger hour = new AtomicInteger(i);
             int hourCnt = listHourStatsByShortlink.stream()
@@ -86,7 +86,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         }
         // 高频访问IP详情
         List<ShortlinkStatsTopIpRespDTO> topIpStats = new ArrayList<>();
-        List<HashMap<String, Object>> listTopIpByShortlink = linkAccessLogsMapper.listTopIpByShortLink(requestParam);
+        List<HashMap<String, Object>> listTopIpByShortlink = linkAccessLogsMapper.listTopIpByShortlink(requestParam);
         listTopIpByShortlink.forEach(map -> {
             ShortlinkStatsTopIpRespDTO statsTopIpRespDTO = new ShortlinkStatsTopIpRespDTO();
             statsTopIpRespDTO.setCnt(Integer.parseInt(map.get("count").toString()));
@@ -95,7 +95,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         });
         // 一周访问详情
         List<Integer> weekdayStats = new ArrayList<>();
-        List<LinkAccessStatsDO> listWeekdayStatsByShortlink = linkAccessStatsMapper.listWeekdayStatsByShortLink(requestParam);
+        List<LinkAccessStatsDO> listWeekdayStatsByShortlink = linkAccessStatsMapper.listWeekdayStatsByShortlink(requestParam);
         for (int i = 1; i < 8; i++) {
             AtomicInteger weekday = new AtomicInteger(i);
             int weekdayCnt = listWeekdayStatsByShortlink.stream()
@@ -107,7 +107,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         }
         // 浏览器访问详情
         List<ShortlinkStatsBrowserRespDTO> browserStats = new ArrayList<>();
-        List<HashMap<String, Object>> listBrowserStatsByShortlink = linkBrowserStatsMapper.listBrowserStatsByShortLink(requestParam);
+        List<HashMap<String, Object>> listBrowserStatsByShortlink = linkBrowserStatsMapper.listBrowserStatsByShortlink(requestParam);
         int browserSum = listBrowserStatsByShortlink.stream()
                 .mapToInt(each -> Integer.parseInt(each.get("count").toString()))
                 .sum();
@@ -122,7 +122,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         });
         // 操作系统访问详情
         List<ShortlinkStatsOsRespDTO> osStats = new ArrayList<>();
-        List<HashMap<String, Object>> listOsStatsByShortlink = linkOsStatsMapper.listOsStatsByShortLink(requestParam);
+        List<HashMap<String, Object>> listOsStatsByShortlink = linkOsStatsMapper.listOsStatsByShortlink(requestParam);
         int osSum = listOsStatsByShortlink.stream()
                 .mapToInt(each -> Integer.parseInt(each.get("count").toString()))
                 .sum();
@@ -159,7 +159,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         uvTypeStats.add(newUvRespDTO);
         // 访问设备类型详情
         List<ShortlinkStatsDeviceRespDTO> deviceStats = new ArrayList<>();
-        List<LinkDeviceStatsDO> listDeviceStatsByShortlink = linkDeviceStatsMapper.listDeviceStatsByShortLink(requestParam);
+        List<LinkDeviceStatsDO> listDeviceStatsByShortlink = linkDeviceStatsMapper.listDeviceStatsByShortlink(requestParam);
         int deviceSum = listDeviceStatsByShortlink.stream()
                 .mapToInt(LinkDeviceStatsDO::getCnt)
                 .sum();
@@ -174,7 +174,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         });
         // 访问网络类型详情
         List<ShortlinkStatsNetworkRespDTO> networkStats = new ArrayList<>();
-        List<LinkNetworkStatsDO> listNetworkStatsByShortlink = linkNetworkStatsMapper.listNetworkStatsByShortLink(requestParam);
+        List<LinkNetworkStatsDO> listNetworkStatsByShortlink = linkNetworkStatsMapper.listNetworkStatsByShortlink(requestParam);
         int networkSum = listNetworkStatsByShortlink.stream()
                 .mapToInt(LinkNetworkStatsDO::getCnt)
                 .sum();
