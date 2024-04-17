@@ -200,7 +200,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         shortlinkStatsRespDTO.setWeekdayStats(weekdayStats);
         shortlinkStatsRespDTO.setBrowserStats(browserStats);
         shortlinkStatsRespDTO.setOsStats(osStats);
-        shortlinkStatsRespDTO.setUvTypeStats(null);
+        shortlinkStatsRespDTO.setUvTypeStats(uvTypeStats);
         shortlinkStatsRespDTO.setDeviceStats(deviceStats);
         shortlinkStatsRespDTO.setNetworkStats(networkStats);
         return shortlinkStatsRespDTO;
