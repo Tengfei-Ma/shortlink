@@ -8,13 +8,11 @@ import org.mtf.shortlink.admin.common.convention.result.Result;
 import org.mtf.shortlink.admin.dto.req.RecycleBinCreateReqDTO;
 import org.mtf.shortlink.admin.dto.req.RecycleBinRecoverReqDTO;
 import org.mtf.shortlink.admin.dto.req.RecycleBinRemoveReqDTO;
-import org.mtf.shortlink.admin.remote.dto.req.ShortLinkRecycleBinPageReqDTO;
-import org.mtf.shortlink.admin.remote.dto.req.ShortlinkCreateReqDTO;
-import org.mtf.shortlink.admin.remote.dto.req.ShortlinkPageReqDTO;
-import org.mtf.shortlink.admin.remote.dto.req.ShortlinkUpdateReqDTO;
+import org.mtf.shortlink.admin.remote.dto.req.*;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkCreateRespDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkPageRespDTO;
+import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkStatsRespDTO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -117,5 +115,21 @@ public interface ShortlinkRemoteService {
      */
     default void removeRecycleBin(RecycleBinRemoveReqDTO requestParam){
         HttpUtil.post("http://127.0.0.1:8001/api/shortlink/v1/recycle-bin/remove", JSON.toJSONString(requestParam));
+    }
+
+    /**
+     *
+     * @param requestParam 短链接访问监控请求参数
+     * @return 短链接监控响应参数
+     */
+    default Result<ShortlinkStatsRespDTO> oneShortlinkStats(ShortlinkStatsReqDTO requestParam){
+        Map<String, Object> map = new HashMap<>();
+        map.put("fullShortUrl",requestParam.getFullShortUrl());
+        map.put("gid", requestParam.getGid());
+        map.put("startDate", requestParam.getStartDate());
+        map.put("endDate", requestParam.getEndDate());
+        String resp = HttpUtil.get("http://127.0.0.1:8001/api/shortlink/v1/stats",map);
+        return JSON.parseObject(resp, new TypeReference<>() {
+        });
     }
 }

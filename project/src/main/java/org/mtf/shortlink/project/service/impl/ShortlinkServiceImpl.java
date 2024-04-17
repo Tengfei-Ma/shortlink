@@ -314,7 +314,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             linkAccessStatsDO.setHour(hour);
             linkAccessStatsDO.setWeekday(week);
             linkAccessStatsDO.setDate(new Date());
-            linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
+            linkAccessStatsMapper.shortlinkStats(linkAccessStatsDO);
 
             //该功能需要调用高德的ip定位付费api，模拟实现即可
             Map<String, Object> localParam = new HashMap<>();
