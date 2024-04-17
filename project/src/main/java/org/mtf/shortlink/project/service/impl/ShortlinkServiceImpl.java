@@ -13,7 +13,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -128,13 +127,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
 
     @Override
     public IPage<ShortlinkPageRespDTO> pageShortlink(ShortlinkPageReqDTO requestParam) {
-        LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
-                .eq(ShortlinkDO::getGid, requestParam.getGid())
-                .eq(ShortlinkDO::getEnableStatus, 0)
-                .eq(ShortlinkDO::getDelFlag, 0)
-                .orderByDesc(ShortlinkDO::getCreateTime);
-        Page<ShortlinkDO> page = page(requestParam, queryWrapper);
-        return page.convert(shortlinkDO -> BeanUtil.toBean(shortlinkDO, ShortlinkPageRespDTO.class));
+        IPage<ShortlinkDO> resultPage = baseMapper.pageLink(requestParam);
+        return resultPage.convert(shortlinkDO -> BeanUtil.toBean(shortlinkDO, ShortlinkPageRespDTO.class));
     }
 
     @Override
