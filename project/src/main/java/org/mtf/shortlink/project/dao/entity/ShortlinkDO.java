@@ -28,4 +28,24 @@ public class ShortlinkDO extends BaseDO {
     private Date validDate;
     @TableField("`describe`") //describe是MySQL的关键字，用``防止冲突
     private String describe;
+    private Integer totalUv;
+    private Integer totalPv;
+    private Integer totalUip;
+    /**
+     * 今日PV
+     */
+    @TableField(exist = false)
+    private Integer todayPv;
+
+    /**
+     * 今日UV
+     */
+    @TableField(exist = false)
+    private Integer todayUv;
+
+    /**
+     * 今日UIP
+     */
+    @TableField(exist = false)
+    private Integer todayUip;
 }

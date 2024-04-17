@@ -23,4 +23,12 @@ public class ShortlinkPageRespDTO {
     private String describe;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
+
+    private Integer totalUv;
+    private Integer totalPv;
+    private Integer totalUip;
+
+    private Integer todayUv;
+    private Integer todayPv;
+    private Integer todayUip;
 }

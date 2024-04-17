@@ -10,4 +10,8 @@ import org.mtf.shortlink.project.dao.entity.ShortlinkDO;
 @Data
 public class ShortlinkPageReqDTO extends Page<ShortlinkDO> {
     private String gid;
+    /**
+     * 排序标识
+     */
+    private String orderTag;
 }
