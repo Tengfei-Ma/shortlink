@@ -15,10 +15,7 @@ import org.mtf.shortlink.project.dto.resp.*;
 import org.mtf.shortlink.project.service.ShortlinkStatsService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -138,8 +135,28 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
             osRespDTO.setRatio(actualRatio);
             osStats.add(osRespDTO);
         });
-        //TODO 访客类型
-
+        // 访客访问类型详情
+        List<ShortlinkStatsUvRespDTO> uvTypeStats=new ArrayList<>();
+        HashMap<String, Object> findUvTypeByShortlink=linkAccessLogsMapper.findUvTypeCntByShortlink(requestParam);
+        String oldUser = Optional.ofNullable(findUvTypeByShortlink).map(obj -> obj.get("oldUserCnt").toString()).orElse("0");
+        int oldUserCnt = Integer.parseInt(oldUser);
+        String newUser = Optional.ofNullable(findUvTypeByShortlink).map(obj -> obj.get("newUserCnt").toString()).orElse("0");
+        int newUserCnt = Integer.parseInt(newUser);
+        int uvSum=oldUserCnt+newUserCnt;
+        double oldRatio = (double) oldUserCnt / uvSum;
+        double actualOldRatio = Math.round(oldRatio * 100.0) / 100.0;
+        double newRatio = (double) newUserCnt / uvSum;
+        double actualNewRatio = Math.round(newRatio * 100.0) / 100.0;
+        ShortlinkStatsUvRespDTO oldUvRespDTO=new ShortlinkStatsUvRespDTO();
+        oldUvRespDTO.setUvType("oldUser");
+        oldUvRespDTO.setRatio(actualOldRatio);
+        oldUvRespDTO.setCnt(oldUserCnt);
+        ShortlinkStatsUvRespDTO newUvRespDTO=new ShortlinkStatsUvRespDTO();
+        newUvRespDTO.setUvType("newUser");
+        newUvRespDTO.setRatio(actualNewRatio);
+        newUvRespDTO.setCnt(newUserCnt);
+        uvTypeStats.add(oldUvRespDTO);
+        uvTypeStats.add(newUvRespDTO);
         // 访问设备类型详情
         List<ShortlinkStatsDeviceRespDTO> deviceStats = new ArrayList<>();
         List<LinkDeviceStatsDO> listDeviceStatsByShortlink = linkDeviceStatsMapper.listDeviceStatsByShortLink(requestParam);
