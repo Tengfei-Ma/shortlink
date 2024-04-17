@@ -267,7 +267,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         Cookie[] cookies = ((HttpServletRequest) request).getCookies();
         AtomicBoolean uvFlag = new AtomicBoolean();
         try {
-            AtomicReference<String> uv=new AtomicReference<>();
+            AtomicReference<String> uv = new AtomicReference<>();
             Runnable addResponseCookie = () -> {     //请求不携带cookie，在响应中添加cookie，下次请求就会携带cookie
                 String cookieUUID = UUID.fastUUID().toString();
                 uv.set(cookieUUID);
@@ -287,7 +287,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                         .ifPresentOrElse((cookieUUID -> {     //请求携带cookie，cookie加入redis的集合
                             uv.set(cookieUUID);
                             // 集合中存在加入失败，代表是老用户，uvFlag为false，集合中不存在加入成功，代表是新用户，uvFlag为true
-                            Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl,uv.get());
+                            Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, uv.get());
                             uvFlag.set(uvAdded != null && uvAdded > 0L);
                         }), addResponseCookie);
             } else {
@@ -323,6 +323,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             String resp = HttpUtil.get(AMAP_REMOTE_URL, localParam);
             JSONObject localObj = JSON.parseObject(resp);
             String infoCode = localObj.getString("infocode");
+            String actualProvince;
+            String actualCity;
             if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, "10000")) {
                 String province = localObj.getString("province");
                 String city = localObj.getString("city");
@@ -333,12 +335,12 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkLocalStatsDO.setDate(new Date());
                 linkLocalStatsDO.setCnt(1);
                 linkLocalStatsDO.setCountry("中国");
-                linkLocalStatsDO.setProvince(StrUtil.equals(province, "[]") ? "unknown" : province);
-                linkLocalStatsDO.setCity(StrUtil.equals(city, "[]") ? "unknown" : city);
+                linkLocalStatsDO.setProvince(actualProvince = StrUtil.equals(province, "[]") ? "unknown" : province);
+                linkLocalStatsDO.setCity(actualCity = StrUtil.equals(city, "[]") ? "unknown" : city);
                 linkLocalStatsDO.setAdcode(StrUtil.equals(adCode, "[]") ? "unknown" : adCode);
                 linkLocalStatsMapper.shortlinkLocalStats(linkLocalStatsDO);
 
-                String os=LinkUtil.getOs((HttpServletRequest) request);
+                String os = LinkUtil.getOs((HttpServletRequest) request);
                 LinkOsStatsDO linkOsStatsDO = new LinkOsStatsDO();
                 linkOsStatsDO.setFullShortUrl(fullShortUrl);
                 linkOsStatsDO.setGid(gid);
@@ -347,7 +349,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkOsStatsDO.setOs(os);
                 linkOsStatsMapper.shortlinkOsStats(linkOsStatsDO);
 
-                String browser=LinkUtil.getBrowser((HttpServletRequest) request);
+                String browser = LinkUtil.getBrowser((HttpServletRequest) request);
                 LinkBrowserStatsDO linkBrowserStatsDO = new LinkBrowserStatsDO();
                 linkBrowserStatsDO.setFullShortUrl(fullShortUrl);
                 linkBrowserStatsDO.setGid(gid);
@@ -356,30 +358,35 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkBrowserStatsDO.setBrowser(browser);
                 linkBrowserStatsMapper.shortlinkBrowserStats(linkBrowserStatsDO);
 
-                LinkAccessLogsDO linkAccessLogsDO=new LinkAccessLogsDO();
+                String device = LinkUtil.getDevice((HttpServletRequest) request);
+                LinkDeviceStatsDO linkDeviceStatsDO = new LinkDeviceStatsDO();
+                linkDeviceStatsDO.setFullShortUrl(fullShortUrl);
+                linkDeviceStatsDO.setGid(gid);
+                linkDeviceStatsDO.setDate(new Date());
+                linkDeviceStatsDO.setCnt(1);
+                linkDeviceStatsDO.setDevice(device);
+                linkDeviceStatsMapper.shortlinkDeviceStats(linkDeviceStatsDO);
+
+                String network = LinkUtil.getNetwork((HttpServletRequest) request);
+                LinkNetworkStatsDO linkNetworkStatsDO = new LinkNetworkStatsDO();
+                linkNetworkStatsDO.setFullShortUrl(fullShortUrl);
+                linkNetworkStatsDO.setGid(gid);
+                linkNetworkStatsDO.setDate(new Date());
+                linkNetworkStatsDO.setCnt(1);
+                linkNetworkStatsDO.setNetwork(network);
+                linkNetworkStatsMapper.shortlinkNetworkStats(linkNetworkStatsDO);
+
+                LinkAccessLogsDO linkAccessLogsDO = new LinkAccessLogsDO();
                 linkAccessLogsDO.setFullShortUrl(fullShortUrl);
                 linkAccessLogsDO.setGid(gid);
                 linkAccessLogsDO.setUser(uv.get());
                 linkAccessLogsDO.setBrowser(browser);
                 linkAccessLogsDO.setOs(os);
                 linkAccessLogsDO.setIp(remoteAddr);
+                linkAccessLogsDO.setNetwork(network);
+                linkAccessLogsDO.setDevice(device);
+                linkAccessLogsDO.setLocal(StrUtil.join("-", "中国", actualProvince, actualCity));
                 linkAccessLogsMapper.insert(linkAccessLogsDO);
-
-                LinkDeviceStatsDO linkDeviceStatsDO=new LinkDeviceStatsDO();
-                linkDeviceStatsDO.setFullShortUrl(fullShortUrl);
-                linkDeviceStatsDO.setGid(gid);
-                linkDeviceStatsDO.setDate(new Date());
-                linkDeviceStatsDO.setCnt(1);
-                linkDeviceStatsDO.setDevice(LinkUtil.getDevice((HttpServletRequest) request));
-                linkDeviceStatsMapper.shortlinkDeviceStats(linkDeviceStatsDO);
-
-                LinkNetworkStatsDO linkNetworkStatsDO = new LinkNetworkStatsDO();
-                linkNetworkStatsDO.setFullShortUrl(fullShortUrl);
-                linkNetworkStatsDO.setGid(gid);
-                linkNetworkStatsDO.setDate(new Date());
-                linkNetworkStatsDO.setCnt(1);
-                linkNetworkStatsDO.setNetwork(LinkUtil.getNetwork((HttpServletRequest) request));
-                linkNetworkStatsMapper.shortlinkNetworkStats(linkNetworkStatsDO);
             }
 
         } catch (Throwable e) {
