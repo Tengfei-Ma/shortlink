@@ -1,15 +1,17 @@
 package org.mtf.shortlink.project.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
-import org.mtf.shortlink.project.dao.entity.LinkAccessStatsDO;
-import org.mtf.shortlink.project.dao.entity.LinkDeviceStatsDO;
-import org.mtf.shortlink.project.dao.entity.LinkLocalStatsDO;
-import org.mtf.shortlink.project.dao.entity.LinkNetworkStatsDO;
+import org.mtf.shortlink.project.dao.entity.*;
 import org.mtf.shortlink.project.dao.mapper.*;
+import org.mtf.shortlink.project.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 import org.mtf.shortlink.project.dto.resp.*;
 import org.mtf.shortlink.project.service.ShortlinkStatsService;
@@ -31,9 +33,9 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
 
 
     @Override
-    public ShortlinkStatsRespDTO oneShortLinkStats(ShortlinkStatsReqDTO requestParam) {
-        List<LinkAccessStatsDO> listStatsByShortlink=linkAccessStatsMapper.listStatsByShortlink(requestParam);
-        if(CollUtil.isEmpty(listStatsByShortlink)){
+    public ShortlinkStatsRespDTO oneShortlinkStats(ShortlinkStatsReqDTO requestParam) {
+        List<LinkAccessStatsDO> listStatsByShortlink = linkAccessStatsMapper.listStatsByShortlink(requestParam);
+        if (CollUtil.isEmpty(listStatsByShortlink)) {
             return null;
         }
         // 基础访问数据
@@ -52,7 +54,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
                     dailyRespDTO.setUip(linkAccessStatsDO.getUip());
                     daily.add(dailyRespDTO);
                 }, () -> {
-                    ShortlinkStatsAccessDailyRespDTO dailyRespDTO=new ShortlinkStatsAccessDailyRespDTO();
+                    ShortlinkStatsAccessDailyRespDTO dailyRespDTO = new ShortlinkStatsAccessDailyRespDTO();
                     dailyRespDTO.setDate(s);
                     dailyRespDTO.setPv(0);
                     dailyRespDTO.setUv(0);
@@ -66,7 +68,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         listedLocalByShortlink.forEach(linkLocalStatsDO -> {
             double ratio = (double) linkLocalStatsDO.getCnt() / localCntSum;
             double actualRatio = Math.round(ratio * 100.0) / 100.0;
-            ShortlinkStatsLocalCNRespDTO localCNRespDTO=new ShortlinkStatsLocalCNRespDTO();
+            ShortlinkStatsLocalCNRespDTO localCNRespDTO = new ShortlinkStatsLocalCNRespDTO();
             localCNRespDTO.setCnt(linkLocalStatsDO.getCnt());
             localCNRespDTO.setLocal(linkLocalStatsDO.getProvince());
             localCNRespDTO.setRatio(actualRatio);
@@ -136,22 +138,22 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
             osStats.add(osRespDTO);
         });
         // 访客访问类型详情
-        List<ShortlinkStatsUvRespDTO> uvTypeStats=new ArrayList<>();
-        HashMap<String, Object> findUvTypeByShortlink=linkAccessLogsMapper.findUvTypeCntByShortlink(requestParam);
+        List<ShortlinkStatsUvRespDTO> uvTypeStats = new ArrayList<>();
+        HashMap<String, Object> findUvTypeByShortlink = linkAccessLogsMapper.findUvTypeCntByShortlink(requestParam);
         String oldUser = Optional.ofNullable(findUvTypeByShortlink).map(obj -> obj.get("oldUserCnt").toString()).orElse("0");
         int oldUserCnt = Integer.parseInt(oldUser);
         String newUser = Optional.ofNullable(findUvTypeByShortlink).map(obj -> obj.get("newUserCnt").toString()).orElse("0");
         int newUserCnt = Integer.parseInt(newUser);
-        int uvSum=oldUserCnt+newUserCnt;
+        int uvSum = oldUserCnt + newUserCnt;
         double oldRatio = (double) oldUserCnt / uvSum;
         double actualOldRatio = Math.round(oldRatio * 100.0) / 100.0;
         double newRatio = (double) newUserCnt / uvSum;
         double actualNewRatio = Math.round(newRatio * 100.0) / 100.0;
-        ShortlinkStatsUvRespDTO oldUvRespDTO=new ShortlinkStatsUvRespDTO();
+        ShortlinkStatsUvRespDTO oldUvRespDTO = new ShortlinkStatsUvRespDTO();
         oldUvRespDTO.setUvType("oldUser");
         oldUvRespDTO.setRatio(actualOldRatio);
         oldUvRespDTO.setCnt(oldUserCnt);
-        ShortlinkStatsUvRespDTO newUvRespDTO=new ShortlinkStatsUvRespDTO();
+        ShortlinkStatsUvRespDTO newUvRespDTO = new ShortlinkStatsUvRespDTO();
         newUvRespDTO.setUvType("newUser");
         newUvRespDTO.setRatio(actualNewRatio);
         newUvRespDTO.setCnt(newUserCnt);
@@ -187,7 +189,7 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
             networkRespDTO.setRatio(actualRatio);
             networkStats.add(networkRespDTO);
         });
-        ShortlinkStatsRespDTO shortlinkStatsRespDTO=new ShortlinkStatsRespDTO();
+        ShortlinkStatsRespDTO shortlinkStatsRespDTO = new ShortlinkStatsRespDTO();
         shortlinkStatsRespDTO.setPv(pvUvUidStatsByShortlink.getPv());
         shortlinkStatsRespDTO.setUv(pvUvUidStatsByShortlink.getUv());
         shortlinkStatsRespDTO.setUip(pvUvUidStatsByShortlink.getUip());
@@ -202,5 +204,35 @@ public class ShortlinkStatsServiceImpl implements ShortlinkStatsService {
         shortlinkStatsRespDTO.setDeviceStats(deviceStats);
         shortlinkStatsRespDTO.setNetworkStats(networkStats);
         return shortlinkStatsRespDTO;
+    }
+
+    @Override
+    public IPage<ShortLinkStatsAccessRecordRespDTO> shortlinkAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        LambdaQueryWrapper<LinkAccessLogsDO> queryWrapper = Wrappers.lambdaQuery(LinkAccessLogsDO.class)
+                .eq(LinkAccessLogsDO::getFullShortUrl, requestParam.getFullShortUrl())
+                .eq(LinkAccessLogsDO::getGid, requestParam.getGid())
+                .between(LinkAccessLogsDO::getCreateTime, requestParam.getStartDate(), requestParam.getEndDate())
+                .eq(LinkAccessLogsDO::getDelFlag, 0);
+        IPage<LinkAccessLogsDO> linkAccessLogsDOIPage = linkAccessLogsMapper.selectPage(requestParam, queryWrapper);
+        IPage<ShortLinkStatsAccessRecordRespDTO> recordRespDTOIPage = linkAccessLogsDOIPage.convert(
+                (linkAccessLogsDO -> BeanUtil.toBean(linkAccessLogsDO, ShortLinkStatsAccessRecordRespDTO.class)));
+        List<String> userAccessLogsList = recordRespDTOIPage.getRecords().stream().map(ShortLinkStatsAccessRecordRespDTO::getUser).toList();
+        //直接传requestParam在执行SQL时因为该对象继承过Page接口会默认在最后面加上limit子句，，因此需要将requestParam拆分后传递参数
+        List<Map<String, Object>> uvTypeList = linkAccessLogsMapper.selectUvTypeByUsers(
+                requestParam.getGid(),
+                requestParam.getFullShortUrl(),
+                requestParam.getStartDate(),
+                requestParam.getEndDate(),
+                userAccessLogsList);
+        recordRespDTOIPage.getRecords().forEach(shortLinkStatsAccessRecordRespDTO -> {
+            String uvType = uvTypeList.stream()
+                    .filter(stringObjectMap -> stringObjectMap.get("user").equals(shortLinkStatsAccessRecordRespDTO.getUser()))
+                    .findFirst()
+                    .map(stringObjectMap -> stringObjectMap.get("uvType"))
+                    .map(Object::toString)
+                    .orElse("旧访客");
+            shortLinkStatsAccessRecordRespDTO.setUvType(uvType);
+        });
+        return recordRespDTOIPage;
     }
 }

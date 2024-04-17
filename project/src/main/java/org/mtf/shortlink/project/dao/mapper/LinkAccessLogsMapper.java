@@ -9,6 +9,7 @@ import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 短链接访问日志监控持久层
@@ -64,4 +65,36 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
             AS user_counts;
             """)
     HashMap<String, Object> findUvTypeCntByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
+
+    /**
+     * 根据用户信息查询访客类型
+     */
+    @Select("""
+            <script>
+                SELECT
+                    user,
+                    CASE
+                        WHEN MIN(create_time) BETWEEN #{startDate} AND #{endDate} THEN '新访客'
+                        ELSE '老访客'
+                    END AS uvType
+                FROM
+                    t_link_access_logs
+                WHERE
+                    full_short_url = #{fullShortUrl}
+                    AND gid = #{gid}
+                    AND user IN
+                    <foreach item='item' index='index' collection='userAccessLogsList' open='(' separator=',' close=')'>
+                        #{item}
+                    </foreach>
+                GROUP BY
+                    user;
+            </script>
+            """)
+    List<Map<String, Object>> selectUvTypeByUsers(
+            @Param("gid") String gid,
+            @Param("fullShortUrl") String fullShortUrl,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("userAccessLogsList") List<String> userAccessLogsList
+    );
 }

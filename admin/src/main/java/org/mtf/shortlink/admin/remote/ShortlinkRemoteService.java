@@ -9,10 +9,7 @@ import org.mtf.shortlink.admin.dto.req.RecycleBinCreateReqDTO;
 import org.mtf.shortlink.admin.dto.req.RecycleBinRecoverReqDTO;
 import org.mtf.shortlink.admin.dto.req.RecycleBinRemoveReqDTO;
 import org.mtf.shortlink.admin.remote.dto.req.*;
-import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkCreateRespDTO;
-import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkGroupCountRespDTO;
-import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkPageRespDTO;
-import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkStatsRespDTO;
+import org.mtf.shortlink.admin.remote.dto.resp.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -132,4 +129,21 @@ public interface ShortlinkRemoteService {
         return JSON.parseObject(resp, new TypeReference<>() {
         });
     }
+    /**
+     *
+     * @param requestParam 短链接访问记录监控请求参数
+     * @return 短链接访问记录监控响应参数
+     */
+
+    default Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortlinkAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam){
+        Map<String, Object> map = new HashMap<>();
+        map.put("fullShortUrl",requestParam.getFullShortUrl());
+        map.put("gid", requestParam.getGid());
+        map.put("startDate", requestParam.getStartDate());
+        map.put("endDate", requestParam.getEndDate());
+        String resp = HttpUtil.get("http://127.0.0.1:8001/api/shortlink/v1/stats/access-record",map);
+        return JSON.parseObject(resp, new TypeReference<>() {
+        });
+    }
+
 }
