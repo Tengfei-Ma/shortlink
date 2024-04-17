@@ -80,6 +80,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
 
+    private final LinkStatsTodayMapper linkStatsTodayMapper;
+
 
     @Value("${short-link.stats.locale.amap-key}")
     private String statsLocaleAmapKey;
@@ -392,6 +394,14 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 linkAccessLogsMapper.insert(linkAccessLogsDO);
 
                 baseMapper.incrementStats(gid, fullShortUrl, 1, uvFlag.get() ? 1 : 0, uipFlag ? 1 : 0);
+                LinkStatsTodayDO linkStatsTodayDO=new LinkStatsTodayDO();
+                linkStatsTodayDO.setFullShortUrl(fullShortUrl);
+                linkStatsTodayDO.setGid(gid);
+                linkStatsTodayDO.setDate(new Date());
+                linkStatsTodayDO.setTodayPv(1);
+                linkStatsTodayDO.setTodayUv(uvFlag.get() ? 1 : 0);
+                linkStatsTodayDO.setTodayUip(uipFlag ? 1 : 0);
+                linkStatsTodayMapper.shortLinkTodayState(linkStatsTodayDO);
             }
 
         } catch (Throwable e) {
