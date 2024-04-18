@@ -28,6 +28,7 @@ public class ShortlinkDO extends BaseDO {
     private Date validDate;
     @TableField("`describe`") //describe是MySQL的关键字，用``防止冲突
     private String describe;
+    private Long delTime;
     private Integer totalUv;
     private Integer totalPv;
     private Integer totalUip;

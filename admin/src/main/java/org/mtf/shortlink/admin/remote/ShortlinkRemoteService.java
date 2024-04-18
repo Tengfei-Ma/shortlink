@@ -27,7 +27,16 @@ public interface ShortlinkRemoteService {
         return JSON.parseObject(resp, new TypeReference<>() {
         });
     }
-
+    /**
+     * 批量创建短链接
+     * @param requestParam 批量创建短链接请求实体
+     * @return 批量创建短链接响应实体
+     */
+    default Result<ShortlinkBatchCreateRespDTO> batchCreateShortLink(ShortlinkBatchCreateReqDTO requestParam){
+        String resp = HttpUtil.post("http://127.0.0.1:8001/api/shortlink/v1/link/batch",JSON.toJSONString(requestParam));
+        return JSON.parseObject(resp, new TypeReference<>() {
+        });
+    }
     /**
      * 分页查询短链接
      * @param requestParam 分页请求参数实体
@@ -180,4 +189,6 @@ public interface ShortlinkRemoteService {
         return JSON.parseObject(resp, new TypeReference<>() {
         });
     }
+
+
 }

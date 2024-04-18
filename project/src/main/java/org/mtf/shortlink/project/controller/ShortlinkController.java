@@ -6,9 +6,11 @@ import jakarta.servlet.ServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.mtf.shortlink.project.common.convention.result.Result;
 import org.mtf.shortlink.project.common.convention.result.Results;
+import org.mtf.shortlink.project.dto.req.ShortlinkBatchCreateReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkCreateReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkPageReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkUpdateReqDTO;
+import org.mtf.shortlink.project.dto.resp.ShortlinkBatchCreateRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkCreateRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
@@ -25,7 +27,7 @@ import java.util.List;
 public class ShortlinkController {
     private final ShortlinkService shortlinkService;
     /**
-     * 短链接跳转长链接
+     * 短链接跳转原始链接
      */
     @GetMapping("/{short-uri}")
     public void restoreUrl(@PathVariable("short-uri") String shortUri, ServletRequest request, ServletResponse response)    {
@@ -36,10 +38,16 @@ public class ShortlinkController {
      * 创建短链接
      */
     @PostMapping("/api/shortlink/v1/link")
-    public Result<ShortlinkCreateRespDTO> createShortLink(@RequestBody ShortlinkCreateReqDTO requestParam){
+    public Result<ShortlinkCreateRespDTO> createShortlink(@RequestBody ShortlinkCreateReqDTO requestParam){
         return Results.success(shortlinkService.createShortLink(requestParam));
     }
-
+    /**
+     * 批量创建短链接
+     */
+    @PostMapping("/api/shortlink/v1/link/batch")
+    public Result<ShortlinkBatchCreateRespDTO> batchCreateShortlink(@RequestBody ShortlinkBatchCreateReqDTO requestParam) {
+        return Results.success(shortlinkService.batchCreateShortlink(requestParam));
+    }
     /**
      * 分页查询短链接
      */
