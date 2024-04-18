@@ -75,8 +75,10 @@ public class RecycleServiceImpl extends ServiceImpl<ShortlinkMapper, ShortlinkDO
                 .eq(ShortlinkDO::getGid, requestParam.getGid())
                 .eq(ShortlinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                 .eq(ShortlinkDO::getEnableStatus, 1)
+                .eq(ShortlinkDO::getDelTime, 0L)
                 .eq(ShortlinkDO::getDelFlag, 0);
         ShortlinkDO shortlinkDO = new ShortlinkDO();
+        shortlinkDO.setDelTime(System.currentTimeMillis());
         shortlinkDO.setDelFlag(1);
         baseMapper.update(shortlinkDO,updateWrapper);
     }
