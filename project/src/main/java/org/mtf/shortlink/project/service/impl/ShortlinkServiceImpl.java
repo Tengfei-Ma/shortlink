@@ -85,12 +85,15 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     @Value("${short-link.stats.locale.amap-key}")
     private String statsLocaleAmapKey;
 
+    @Value("${short-link.domain.default}")
+    private String defaultDomain;
+
     @Override
     public ShortlinkCreateRespDTO createShortLink(ShortlinkCreateReqDTO requestParam) {
         ShortlinkDO shortlinkDO = BeanUtil.toBean(requestParam, ShortlinkDO.class);
         String shortUri = generateShortUri(requestParam.getDomain(), requestParam.getOriginUrl());
-        String fullShortUrl = requestParam.getDomain() + "/" + shortUri;
-
+        String fullShortUrl = defaultDomain + "/" + shortUri;
+        shortlinkDO.setDomain(defaultDomain);
         shortlinkDO.setShortUri(shortUri);
         shortlinkDO.setFullShortUrl(fullShortUrl);
         shortlinkDO.setFavicon(getFavicon(requestParam.getOriginUrl()));
@@ -199,7 +202,12 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     @Override
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
         String serverName = request.getServerName();
-        String fullShortUrl = serverName + "/" + shortUri;
+        String serverPort = Optional.of(request.getServerPort())
+                .filter(each -> !Objects.equals(each, 80))
+                .map(String::valueOf)
+                .map(each -> ":" + each)
+                .orElse("");
+        String fullShortUrl = serverName +serverPort+ "/" + shortUri;
         String originalLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
         if (StrUtil.isNotBlank(originalLink)) {
             shortlinkStatistic(fullShortUrl, null, request, response);
