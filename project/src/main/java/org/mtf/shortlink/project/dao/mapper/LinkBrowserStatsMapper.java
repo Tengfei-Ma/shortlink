@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkBrowserStatsDO;
+import org.mtf.shortlink.project.dto.req.ShortlinkGroupStatsReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.HashMap;
@@ -43,4 +44,17 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
             GROUP BY full_short_url, gid, browser
             """)
     List<HashMap<String, Object>> listBrowserStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
+    /**
+     * 根据分组获取指定日期内浏览器监控数据
+     */
+    @Select("""
+            SELECT
+            browser, SUM(cnt) as count
+            FROM t_link_browser_stats
+            WHERE gid = #{param.gid}
+            AND date BETWEEN #{param.startDate} and #{param.endDate}
+            GROUP BY gid, browser
+            """)
+    List<HashMap<String, Object>> listBrowserStatsByGroup(@Param("param") ShortlinkGroupStatsReqDTO requestParam);
+
 }

@@ -15,62 +15,30 @@
  * limitations under the License.
  */
 
-package org.mtf.shortlink.admin.remote.dto.resp;
+package org.mtf.shortlink.project.dto.req;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
-
-import java.util.Date;
+import org.mtf.shortlink.project.dao.entity.LinkAccessLogsDO;
 
 /**
- * 短链接监控访问记录响应参数
+ * 分组短链接监控访问记录请求参数
  */
 @Data
-public class ShortLinkStatsAccessRecordRespDTO {
+public class ShortlinkGroupStatsAccessRecordReqDTO extends Page<LinkAccessLogsDO> {
 
     /**
-     * 访客类型
+     * 分组标识
      */
-    private String uvType;
+    private String gid;
 
     /**
-     * 浏览器
+     * 开始日期
      */
-    private String browser;
+    private String startDate;
 
     /**
-     * 操作系统
+     * 结束日期
      */
-    private String os;
-
-    /**
-     * ip
-     */
-    private String ip;
-
-    /**
-     * 访问网络
-     */
-    private String network;
-
-    /**
-     * 访问设备
-     */
-    private String device;
-
-    /**
-     * 地区
-     */
-    private String local;
-
-    /**
-     * 用户信息
-     */
-    private String user;
-
-    /**
-     * 访问时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date createTime;
+    private String endDate;
 }

@@ -116,8 +116,8 @@ public interface ShortlinkRemoteService {
     }
 
     /**
-     *
-     * @param requestParam 短链接访问监控请求参数
+     * 查询单个短链接监控数据
+     * @param requestParam 单个短链接访问监控请求参数
      * @return 短链接监控响应参数
      */
     default Result<ShortlinkStatsRespDTO> oneShortlinkStats(ShortlinkStatsReqDTO requestParam){
@@ -131,12 +131,12 @@ public interface ShortlinkRemoteService {
         });
     }
     /**
-     *
-     * @param requestParam 短链接访问记录监控请求参数
-     * @return 短链接访问记录监控响应参数
+     * 查询单个短链接访问记录
+     * @param requestParam 单个短链接访问记录监控请求参数
+     * @return 分页短链接访问记录监控响应参数
      */
 
-    default Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortlinkAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam){
+    default Result<IPage<ShortlinkStatsAccessRecordRespDTO>> shortlinkAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam){
         Map<String, Object> map = new HashMap<>();
         map.put("fullShortUrl",requestParam.getFullShortUrl());
         map.put("gid", requestParam.getGid());
@@ -149,4 +149,35 @@ public interface ShortlinkRemoteService {
         });
     }
 
+    /**
+     * 查询分组短链接监控数据
+     * @param requestParam 分组短链接访问监控请求参数
+     * @return 短链接监控响应参数
+     */
+    default Result<ShortlinkStatsRespDTO> groupShortlinkStats(ShortlinkGroupStatsReqDTO requestParam){
+        Map<String, Object> map = new HashMap<>();
+        map.put("gid", requestParam.getGid());
+        map.put("startDate", requestParam.getStartDate());
+        map.put("endDate", requestParam.getEndDate());
+        String resp = HttpUtil.get("http://127.0.0.1:8001/api/shortlink/v1/stats/group",map);
+        return JSON.parseObject(resp, new TypeReference<>() {
+        });
+    }
+
+    /**
+     * 查询分组短链接访问记录
+     * @param requestParam 分组短链接访问记录监控请求参数
+     * @return 分页短链接访问记录监控响应参数
+     */
+    default Result<IPage<ShortlinkStatsAccessRecordRespDTO>> groupShortlinkStatsAccessRecord(ShortlinkGroupStatsAccessRecordReqDTO requestParam){
+        Map<String, Object> map = new HashMap<>();
+        map.put("gid", requestParam.getGid());
+        map.put("startDate", requestParam.getStartDate());
+        map.put("endDate", requestParam.getEndDate());
+        map.put("current",requestParam.getCurrent());
+        map.put("size",requestParam.getSize());
+        String resp = HttpUtil.get("http://127.0.0.1:8001/api/shortlink/v1/stats/access-record/group",map);
+        return JSON.parseObject(resp, new TypeReference<>() {
+        });
+    }
 }

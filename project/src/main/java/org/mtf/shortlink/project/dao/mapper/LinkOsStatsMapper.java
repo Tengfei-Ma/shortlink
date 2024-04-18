@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.mtf.shortlink.project.dao.entity.LinkOsStatsDO;
+import org.mtf.shortlink.project.dto.req.ShortlinkGroupStatsReqDTO;
 import org.mtf.shortlink.project.dto.req.ShortlinkStatsReqDTO;
 
 import java.util.HashMap;
@@ -42,4 +43,16 @@ public interface LinkOsStatsMapper extends BaseMapper<LinkOsStatsDO> {
             GROUP BY full_short_url, gid, os;
             """)
     List<HashMap<String, Object>> listOsStatsByShortlink(@Param("param") ShortlinkStatsReqDTO requestParam);
+    /**
+     * 根据分组获取指定日期内操作系统监控数据
+     */
+    @Select("""
+            SELECT
+            os, SUM(cnt) AS count
+            FROM t_link_os_stats
+            WHERE gid = #{param.gid}
+            AND date BETWEEN #{param.startDate} and #{param.endDate}
+            GROUP BY gid, os;
+            """)
+    List<HashMap<String, Object>> listOsStatsByGroup(@Param("param") ShortlinkGroupStatsReqDTO requestParam);
 }
