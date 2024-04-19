@@ -25,6 +25,10 @@ spring:
       host: 192.168.88.128
       port: 6379
       password: 123456
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 127.0.0.1:8080
 short-link:
   domain:
     default: nurl.ink:8001
