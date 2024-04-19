@@ -29,6 +29,7 @@ import org.jsoup.nodes.Element;
 import org.mtf.shortlink.project.common.convention.exception.ClientException;
 import org.mtf.shortlink.project.common.convention.exception.ServiceException;
 import org.mtf.shortlink.project.common.enums.ShortlinkErrorCodeEnum;
+import org.mtf.shortlink.project.config.GotoDomainWhiteListConfiguration;
 import org.mtf.shortlink.project.dao.entity.*;
 import org.mtf.shortlink.project.dao.mapper.*;
 import org.mtf.shortlink.project.dto.biz.ShortlinkStatsRecordDTO;
@@ -86,6 +87,9 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     private final LinkStatsTodayService linkStatsTodayService;
 
 
+    private final GotoDomainWhiteListConfiguration gotoDomainWhiteListConfiguration;
+
+
     @Value("${short-link.stats.locale.amap-key}")
     private String statsLocaleAmapKey;
 
@@ -94,6 +98,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
 
     @Override
     public ShortlinkCreateRespDTO createShortLink(ShortlinkCreateReqDTO requestParam) {
+        verificationWhitelist(requestParam.getOriginUrl());
+
         ShortlinkDO shortlinkDO = BeanUtil.toBean(requestParam, ShortlinkDO.class);
         String shortUri = generateShortUri(requestParam.getDomain(), requestParam.getOriginUrl());
         String fullShortUrl = defaultDomain + "/" + shortUri;
@@ -153,6 +159,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
 
     @Override
     public void updateShortlink(ShortlinkUpdateReqDTO requestParam) {
+        verificationWhitelist(requestParam.getOriginUrl());
+
         LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
                 .eq(ShortlinkDO::getGid, requestParam.getOriginGid())
                 .eq(ShortlinkDO::getFullShortUrl, requestParam.getFullShortUrl())
@@ -587,5 +595,23 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             }
         }
         return null;
+    }
+
+    /**
+     * 验证白名单
+     */
+    private void verificationWhitelist(String originUrl) {
+        Boolean enable = gotoDomainWhiteListConfiguration.getEnable();
+        if (enable == null || !enable) {
+            return;
+        }
+        String domain = LinkUtil.extractDomain(originUrl);
+        if (StrUtil.isBlank(domain)) {
+            throw new ClientException("跳转链接填写错误");
+        }
+        List<String> details = gotoDomainWhiteListConfiguration.getDetails();
+        if (!details.contains(domain)) {
+            throw new ClientException("演示环境为避免恶意攻击，请生成以下网站跳转链接：" + gotoDomainWhiteListConfiguration.getNames());
+        }
     }
 }
