@@ -1,5 +1,6 @@
 package org.mtf.shortlink.project.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -14,6 +15,7 @@ import org.mtf.shortlink.project.dto.resp.ShortlinkBatchCreateRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkCreateRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.project.dto.resp.ShortlinkPageRespDTO;
+import org.mtf.shortlink.project.handler.CustomBlockHandler;
 import org.mtf.shortlink.project.service.ShortlinkService;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +40,11 @@ public class ShortlinkController {
      * 创建短链接
      */
     @PostMapping("/api/shortlink/v1/link")
+    @SentinelResource(
+            value = "create_short-link",
+            blockHandler = "createShortlinkBlockHandlerMethod",
+            blockHandlerClass = CustomBlockHandler.class
+    )
     public Result<ShortlinkCreateRespDTO> createShortlink(@RequestBody ShortlinkCreateReqDTO requestParam){
         return Results.success(shortlinkService.createShortLink(requestParam));
     }
