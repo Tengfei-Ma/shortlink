@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.mtf.shortlink.admin.common.convention.exception.ClientException;
-import org.mtf.shortlink.admin.common.enums.UserErroeCodeEnum;
+import org.mtf.shortlink.admin.common.enums.UserErrorCodeEnum;
 import org.mtf.shortlink.admin.dao.entity.UserDO;
 import org.mtf.shortlink.admin.dao.mapper.UserMapper;
 import org.mtf.shortlink.admin.dto.req.UserLoginReqDTO;
@@ -50,7 +50,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class).eq(UserDO::getUsername, username);
         UserDO userDO = baseMapper.selectOne(queryWrapper);
         if (userDO == null) {
-            throw new ClientException(UserErroeCodeEnum.USER_NULL);
+            throw new ClientException(UserErrorCodeEnum.USER_NULL);
         }
         UserRespDTO userRespDTO = new UserRespDTO();
         BeanUtils.copyProperties(userDO, userRespDTO);
@@ -65,21 +65,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     @Override
     public void register(UserRegisterReqDTO requestParam) {
         if (!hasUsername(requestParam.getUsername())) {
-            throw new ClientException(UserErroeCodeEnum.USER_NAME_EXIST);
+            throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         }
         RLock lock = redissonClient.getLock(LOCK_USER_REGISTER_KEY);
         if (!lock.tryLock()) {
-            throw new ClientException(UserErroeCodeEnum.USER_NAME_EXIST);
+            throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         }
         try {
             int inserted = baseMapper.insert(BeanUtil.toBean(requestParam, UserDO.class));
             if (inserted < 1) {
-                throw new ClientException(UserErroeCodeEnum.USER_SAVE_ERROR);
+                throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
             }
             userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
             groupService.saveGroup(requestParam.getUsername(),"default");
         } catch (DuplicateKeyException exception) {
-            throw new ClientException(UserErroeCodeEnum.User_EXIST);
+            throw new ClientException(UserErrorCodeEnum.User_EXIST);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -103,16 +103,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 .eq(UserDO::getDelFlag,0);
         UserDO userDO = baseMapper.selectOne(queryWrapper);
         if(userDO==null){
-            throw new ClientException(UserErroeCodeEnum.USER_PASSWORD_ERROR);
+            throw new ClientException(UserErrorCodeEnum.USER_PASSWORD_ERROR);
         }
-        //防止用户重复登录
+        //重复登录返回token，redis时长30minutes
         Map<Object, Object> hasLoginMap = stringRedisTemplate.opsForHash().entries(USER_LOGIN_KEY + requestParam.getUsername());
         if (CollUtil.isNotEmpty(hasLoginMap)) {
             stringRedisTemplate.expire(USER_LOGIN_KEY + requestParam.getUsername(), 30L, TimeUnit.MINUTES);
             String token = hasLoginMap.keySet().stream()
                     .findFirst()
                     .map(Object::toString)
-                    .orElseThrow(() -> new ClientException(UserErroeCodeEnum.USER_LOGIN_ERROR));
+                    .orElseThrow(() -> new ClientException(UserErrorCodeEnum.USER_LOGIN_ERROR));
             return new UserLoginRespDTO(token);
         }
         /**
@@ -139,6 +139,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             stringRedisTemplate.delete(USER_LOGIN_KEY + username);
             return;
         }
-        throw new ClientException(UserErroeCodeEnum.USER_NOT_LOGIN);
+        throw new ClientException(UserErrorCodeEnum.USER_NOT_LOGIN);
     }
 }
