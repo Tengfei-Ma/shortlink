@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.mtf.shortlink.admin.common.enums.UserErroeCodeEnum.USER_GROUP_NOT_EXIST;
+import static org.mtf.shortlink.admin.common.enums.UserErrorCodeEnum.USER_GROUP_NOT_EXIST;
 
 /**
  * 回收站接口实现层
