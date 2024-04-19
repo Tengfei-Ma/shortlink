@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.io.IOException;
 import java.util.List;
 
-import static org.mtf.shortlink.admin.common.enums.UserErroeCodeEnum.USERNAME_OR_TOKEN__NOT_EXIST;
+import static org.mtf.shortlink.admin.common.enums.UserErrorCodeEnum.USERNAME_OR_TOKEN__NOT_EXIST;
 
 /**
  * 用户信息传输过滤器
