@@ -101,7 +101,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         verificationWhitelist(requestParam.getOriginUrl());
 
         ShortlinkDO shortlinkDO = BeanUtil.toBean(requestParam, ShortlinkDO.class);
-        String shortUri = generateShortUri(requestParam.getDomain(), requestParam.getOriginUrl());
+        String shortUri = generateShortUri(requestParam.getOriginUrl());
         String fullShortUrl = defaultDomain + "/" + shortUri;
         shortlinkDO.setDomain(defaultDomain);
         shortlinkDO.setShortUri(shortUri);
@@ -561,7 +561,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     /**
      * 根据原始链接生成短链接，防止重复，尝试10次
      */
-    private String generateShortUri(String domain, String originUrl) {
+    private String generateShortUri(String originUrl) {
         int customGenerateCount = 1;
         String shortUri;
         while (true) {
@@ -569,7 +569,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
                 throw new ServiceException(ShortlinkErrorCodeEnum.TRY_GENERATE_ERROR);
             }
             shortUri = HashUtil.hashToBase62(originUrl + UUID.randomUUID());
-            if (!shortUriCreateCachePenetrationBloomFilter.contains(domain + "/" + shortUri)) {
+            if (!shortUriCreateCachePenetrationBloomFilter.contains(defaultDomain + "/" + shortUri)) {
                 break;
             }
             customGenerateCount++;
