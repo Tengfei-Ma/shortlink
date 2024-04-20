@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.mtf.shortlink.admin.common.constant.RedisCacheConstant;
 import org.mtf.shortlink.admin.common.constant.user.UserConstant;
 import org.mtf.shortlink.admin.common.convention.exception.ClientException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,6 +13,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.io.IOException;
 import java.util.List;
 
+import static org.mtf.shortlink.admin.common.constant.RedisCacheConstant.USER_LOGIN_KEY;
 import static org.mtf.shortlink.admin.common.enums.UserErrorCodeEnum.USERNAME_OR_TOKEN__NOT_EXIST;
 
 /**
@@ -43,7 +43,7 @@ public class UserTransmitFilter implements Filter {
                 }
                 Object userInfoJsonStr;
                 try {
-                    userInfoJsonStr= stringRedisTemplate.opsForHash().get(RedisCacheConstant.USER_LOGIN_KEY+username, token);
+                    userInfoJsonStr= stringRedisTemplate.opsForHash().get(USER_LOGIN_KEY+username, token);
                     if(userInfoJsonStr==null){
                         throw new ClientException(USERNAME_OR_TOKEN__NOT_EXIST);
                     }
