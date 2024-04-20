@@ -48,6 +48,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -93,6 +94,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     @Value("${short-link.domain.default}")
     private String defaultDomain;
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ShortlinkCreateRespDTO createShortLink(ShortlinkCreateReqDTO requestParam) {
         verificationWhitelist(requestParam.getOriginUrl());
@@ -154,6 +156,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         return BeanUtil.copyToList(maps, ShortlinkGroupCountRespDTO.class);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateShortlink(ShortlinkUpdateReqDTO requestParam) {
         verificationWhitelist(requestParam.getOriginUrl());
