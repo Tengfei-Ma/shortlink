@@ -36,10 +36,10 @@ public class MessageQueueIdempotentHandler {
     private static final String IDEMPOTENT_KEY_PREFIX = "short-link:idempotent:";
 
     /**
-     * 判断当前消息是否消费过
+     * 判断当前消息是否消费过,\
      *
      * @param messageId 消息唯一标识
-     * @return 消息是否消费过
+     * @return true:未消费过  false:消费过
      */
     public boolean isMessageProcessed(String messageId) {
         String key = IDEMPOTENT_KEY_PREFIX + messageId;
