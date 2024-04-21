@@ -14,7 +14,7 @@ import org.mtf.shortlink.admin.dao.mapper.GroupMapper;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
-import org.mtf.shortlink.admin.remote.ShortlinkRemoteService;
+import org.mtf.shortlink.admin.remote.ShortlinkActualRemoteService;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkGroupCountRespDTO;
 import org.mtf.shortlink.admin.service.GroupService;
 import org.mtf.shortlink.admin.toolkit.RandomGenerator;
@@ -35,13 +35,11 @@ import static org.mtf.shortlink.admin.common.enums.UserErrorCodeEnum.USER_GROUP_
 @Service
 @RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
+    private final ShortlinkActualRemoteService shortlinkActualRemoteService;
     private final RedissonClient redissonClient;
 
     @Value("${short-link.group.max-num}")
     private Integer groupMaxNum;
-
-    private ShortlinkRemoteService shortlinkRemoteService = new ShortlinkRemoteService() {
-    };
 
     @Override
     public void saveGroup(String name) {
@@ -85,7 +83,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         List<GroupDO> groups = baseMapper.selectList(queryWrapper);
         List<ShortlinkGroupRespDTO> shortlinkGroupRespDTOS = BeanUtil.copyToList(groups, ShortlinkGroupRespDTO.class);
         List<String> req = shortlinkGroupRespDTOS.stream().map(ShortlinkGroupRespDTO::getGid).toList();
-        List<ShortlinkGroupCountRespDTO> resp = shortlinkRemoteService.listGroupShortlinkCount(req).getData();
+        List<ShortlinkGroupCountRespDTO> resp = shortlinkActualRemoteService.listGroupShortlinkCount(req).getData();
         shortlinkGroupRespDTOS.forEach(each -> {
             Optional<ShortlinkGroupCountRespDTO> first = resp.stream().filter(item -> each.getGid().equals(item.getGid())).findFirst();
             first.ifPresent(firstItem -> each.setShortlinkCount(firstItem.getShortlinkCount()));
