@@ -1,6 +1,8 @@
 server:
   port: 8002
 spring:
+  application:
+    name: shortlink-admin
   datasource:
     #    username: root
     #    password: 123456
@@ -21,6 +23,10 @@ spring:
       host: 192.168.88.128
       port: 6379
       password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.88.128:8848
 
 short-link:
   group:

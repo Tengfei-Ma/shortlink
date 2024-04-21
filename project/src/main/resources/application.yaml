@@ -1,6 +1,8 @@
 server:
   port: 8001
 spring:
+  application:
+    name: shortlink-project
   datasource:
 #        username: root
 #        password: 123456
@@ -26,6 +28,9 @@ spring:
       port: 6379
       password: 123456
   cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.88.128:8848
     sentinel:
       transport:
         dashboard: 127.0.0.1:8080
