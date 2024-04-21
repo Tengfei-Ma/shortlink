@@ -1,13 +1,13 @@
 package org.mtf.shortlink.admin.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.mtf.shortlink.admin.common.convention.result.Result;
 import org.mtf.shortlink.admin.common.convention.result.Results;
 import org.mtf.shortlink.admin.dto.req.RecycleBinCreateReqDTO;
 import org.mtf.shortlink.admin.dto.req.RecycleBinRecoverReqDTO;
 import org.mtf.shortlink.admin.dto.req.RecycleBinRemoveReqDTO;
-import org.mtf.shortlink.admin.remote.ShortlinkRemoteService;
+import org.mtf.shortlink.admin.remote.ShortlinkActualRemoteService;
 import org.mtf.shortlink.admin.remote.dto.req.ShortLinkRecycleBinPageReqDTO;
 import org.mtf.shortlink.admin.remote.dto.resp.ShortlinkPageRespDTO;
 import org.mtf.shortlink.admin.service.RecycleBinService;
@@ -22,8 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class RecycleBinController {
-    ShortlinkRemoteService shortlinkRemoteService=new ShortlinkRemoteService() {
-    };
+    private final ShortlinkActualRemoteService shortlinkActualRemoteService;
     private final RecycleBinService recycleBinService;
 
     /**
@@ -31,14 +30,14 @@ public class RecycleBinController {
      */
     @PostMapping("/api/shortlink/admin/v1/recycle-bin")
     public Result<Void> createRecycleBin(@RequestBody RecycleBinCreateReqDTO requestParam){
-        shortlinkRemoteService.createRecycleBin(requestParam);
+        shortlinkActualRemoteService.createRecycleBin(requestParam);
         return Results.success();
     }
     /**
      * 分页查询回收站短链接
      */
     @GetMapping("/api/shortlink/admin/v1/recycle-bin/page")
-    public Result<IPage<ShortlinkPageRespDTO>> pageRecycleBin(ShortLinkRecycleBinPageReqDTO requestParam){
+    public Result<Page<ShortlinkPageRespDTO>> pageRecycleBin(ShortLinkRecycleBinPageReqDTO requestParam){
         return recycleBinService.pageRecycleBin(requestParam);
     }
     /**
@@ -46,7 +45,7 @@ public class RecycleBinController {
      */
     @PostMapping("/api/shortlink/admin/v1/recycle-bin/recover")
     public Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam){
-        shortlinkRemoteService.recoverRecycleBin(requestParam);
+        shortlinkActualRemoteService.recoverRecycleBin(requestParam);
         return Results.success();
     }
     /**
@@ -54,7 +53,7 @@ public class RecycleBinController {
      */
     @PostMapping("/api/shortlink/admin/v1/recycle-bin/remove")
     public Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam){
-        shortlinkRemoteService.removeRecycleBin(requestParam);
+        shortlinkActualRemoteService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }
