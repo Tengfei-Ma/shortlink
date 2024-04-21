@@ -111,6 +111,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         shortlinkDO.setTotalPv(0);
         shortlinkDO.setTotalUv(0);
         shortlinkDO.setTotalUip(0);
+        shortlinkDO.setDelTime(0L);
 
         ShortlinkGotoDO shortlinkGotoDO = new ShortlinkGotoDO();
         shortlinkGotoDO.setFullShortUrl(fullShortUrl);
