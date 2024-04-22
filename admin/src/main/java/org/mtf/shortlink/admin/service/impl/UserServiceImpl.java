@@ -70,7 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if (!hasUsername(requestParam.getUsername())) {
             throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         }
-        RLock lock = redissonClient.getLock(LOCK_USER_REGISTER_KEY);
+        RLock lock = redissonClient.getLock(LOCK_USER_REGISTER_KEY + requestParam.getUsername());
         if (!lock.tryLock()) {
             throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         }
@@ -80,13 +80,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
             }
             userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
-            groupService.saveGroup(requestParam.getUsername(),"default");
+            groupService.saveGroup(requestParam.getUsername(), "default");
         } catch (DuplicateKeyException exception) {
             throw new ClientException(UserErrorCodeEnum.User_EXIST);
         } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
+            lock.unlock();
         }
     }
 
@@ -105,9 +103,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
                 .eq(UserDO::getUsername, requestParam.getUsername())
                 .eq(UserDO::getPassword, requestParam.getPassword())
-                .eq(UserDO::getDelFlag,0);
+                .eq(UserDO::getDelFlag, 0);
         UserDO userDO = baseMapper.selectOne(queryWrapper);
-        if(userDO==null){
+        if (userDO == null) {
             throw new ClientException(UserErrorCodeEnum.USER_PASSWORD_ERROR);
         }
         //重复登录返回token，redis时长30minutes
@@ -140,7 +138,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     @Override
     public void logout(String username, String token) {
-        if(checkLogin(username,token)){
+        if (checkLogin(username, token)) {
             stringRedisTemplate.delete(USER_LOGIN_KEY + username);
             return;
         }
