@@ -11,7 +11,8 @@ public enum UserErrorCodeEnum implements IErrorCode {
     USER_PASSWORD_ERROR("B000204","用户名或密码错误"),
     USER_LOGIN_ERROR("B000205","用户登陆错误"),
     USER_NOT_LOGIN("B000206","用户未登录"),
-    USERNAME_OR_TOKEN__NOT_EXIST("B000207","用户名或token不存在"),
+    USER_UPDATE_ERROR("B000207","当前登录用户无法修改"),
+
     USER_GROUP_NOT_EXIST("B000208","用户无分组信息"),
     USER_GROUP_OVER_MAX("B000209","分组数超出限制");
 
