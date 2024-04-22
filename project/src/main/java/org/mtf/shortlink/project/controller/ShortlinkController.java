@@ -49,6 +49,13 @@ public class ShortlinkController {
         return Results.success(shortlinkService.createShortLink(requestParam));
     }
     /**
+     * 通过分布式锁创建短链接
+     */
+    @PostMapping("/api/shortlink/v1/create/by-lock")
+    public Result<ShortlinkCreateRespDTO> createShortLinkByLock(@RequestBody ShortlinkCreateReqDTO requestParam) {
+        return Results.success(shortlinkService.createShortlinkByLock(requestParam));
+    }
+    /**
      * 批量创建短链接
      */
     @PostMapping("/api/shortlink/v1/link/batch")

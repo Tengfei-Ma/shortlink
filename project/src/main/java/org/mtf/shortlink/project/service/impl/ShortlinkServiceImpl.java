@@ -129,8 +129,55 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         stringRedisTemplate.opsForValue().set(
                 String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
                 requestParam.getOriginUrl(),
-                LinkUtil.getShortlinkCacheValidTime(requestParam.getValidDate()), TimeUnit.MILLISECONDS);
+                LinkUtil.getShortlinkCacheValidTime(requestParam.getValidDate()), TimeUnit.MILLISECONDS
+        );
         shortUriCreateCachePenetrationBloomFilter.add(fullShortUrl);
+        ShortlinkCreateRespDTO shortlinkCreateRespDTO = new ShortlinkCreateRespDTO();
+        shortlinkCreateRespDTO.setGid(requestParam.getGid());
+        shortlinkCreateRespDTO.setOriginUrl(requestParam.getOriginUrl());
+        shortlinkCreateRespDTO.setFullShortUrl(fullShortUrl);
+        return shortlinkCreateRespDTO;
+    }
+
+    @Override
+    public ShortlinkCreateRespDTO createShortlinkByLock(ShortlinkCreateReqDTO requestParam) {
+        verificationWhitelist(requestParam.getOriginUrl());
+        String fullShortUrl;
+        RLock lock = redissonClient.getLock(SHORT_LINK_CREATE_LOCK_KEY);
+        lock.lock();
+        try {
+            ShortlinkDO shortlinkDO = BeanUtil.toBean(requestParam, ShortlinkDO.class);
+            String shortUri = generateShortUri(requestParam.getOriginUrl());
+            fullShortUrl = defaultDomain + "/" + shortUri;
+            shortlinkDO.setDomain(defaultDomain);
+            shortlinkDO.setShortUri(shortUri);
+            shortlinkDO.setFullShortUrl(fullShortUrl);
+            shortlinkDO.setFavicon(getFavicon(requestParam.getOriginUrl()));
+            shortlinkDO.setClickNum(0);
+            shortlinkDO.setEnableStatus(0);
+            shortlinkDO.setTotalPv(0);
+            shortlinkDO.setTotalUv(0);
+            shortlinkDO.setTotalUip(0);
+            shortlinkDO.setDelTime(0L);
+
+            ShortlinkGotoDO shortlinkGotoDO = new ShortlinkGotoDO();
+            shortlinkGotoDO.setFullShortUrl(fullShortUrl);
+            shortlinkGotoDO.setGid(requestParam.getGid());
+            try {
+                baseMapper.insert(shortlinkDO);
+                shortlinkGotoMapper.insert(shortlinkGotoDO);
+            } catch (DuplicateKeyException ex) {
+                throw new ServiceException(ShortlinkErrorCodeEnum.SHORTLINK_EXIST);
+            }
+            //缓存预热，将刚创建的短链接存入缓存并根据有效期设置缓存过期时间
+            stringRedisTemplate.opsForValue().set(
+                    String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
+                    requestParam.getOriginUrl(),
+                    LinkUtil.getShortlinkCacheValidTime(requestParam.getValidDate()), TimeUnit.MILLISECONDS
+            );
+        } finally {
+            lock.unlock();
+        }
         ShortlinkCreateRespDTO shortlinkCreateRespDTO = new ShortlinkCreateRespDTO();
         shortlinkCreateRespDTO.setGid(requestParam.getGid());
         shortlinkCreateRespDTO.setOriginUrl(requestParam.getOriginUrl());
@@ -454,7 +501,7 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
     }
 
     /**
-     * 根据原始链接生成短链接，防止重复，尝试10次
+     * 根据原始链接生成短链接，防止重复，尝试10次,用布隆过滤器实现
      */
     private String generateShortUri(String originUrl) {
         int customGenerateCount = 1;
@@ -465,6 +512,29 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
             }
             shortUri = HashUtil.hashToBase62(originUrl + UUID.randomUUID());
             if (!shortUriCreateCachePenetrationBloomFilter.contains(defaultDomain + "/" + shortUri)) {
+                break;
+            }
+            customGenerateCount++;
+        }
+        return shortUri;
+    }
+    /**
+     * 根据原始链接生成短链接，防止重复，尝试10次，用分布式锁实现
+     */
+    private String generateShortUriByLock(String gid,String originUrl) {
+        int customGenerateCount = 1;
+        String shortUri;
+        while (true) {
+            if (customGenerateCount > 10) {
+                throw new ServiceException(ShortlinkErrorCodeEnum.TRY_GENERATE_ERROR);
+            }
+            shortUri = HashUtil.hashToBase62(originUrl + UUID.randomUUID());
+            LambdaQueryWrapper<ShortlinkDO> queryWrapper = Wrappers.lambdaQuery(ShortlinkDO.class)
+                    .eq(ShortlinkDO::getGid, gid)
+                    .eq(ShortlinkDO::getFullShortUrl, defaultDomain + "/" + shortUri)
+                    .eq(ShortlinkDO::getDelFlag, 0);
+            ShortlinkDO shortLinkDO = baseMapper.selectOne(queryWrapper);
+            if (shortLinkDO == null) {
                 break;
             }
             customGenerateCount++;
