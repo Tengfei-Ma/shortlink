@@ -2,7 +2,7 @@ package org.mtf.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.mtf.shortlink.admin.dao.entity.GroupDO;
-import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
+import org.mtf.shortlink.admin.dto.req.ShortlinkGroupUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
 
@@ -34,7 +34,7 @@ public interface GroupService extends IService<GroupDO> {
      * 修改短链接分组
      * @param requestParam 分组标识和名称
      */
-    void updateGroup(ShortLinkGroupUpdateReqDTO requestParam);
+    void updateGroup(ShortlinkGroupUpdateReqDTO requestParam);
 
     /**
      * 删除短链接分组

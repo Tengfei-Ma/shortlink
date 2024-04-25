@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.mtf.shortlink.project.dao.entity.LinkStatsTodayDO;
-
+/**
+ * 短链接今日访问监控持久层
+ */
 public interface LinkStatsTodayMapper extends BaseMapper<LinkStatsTodayDO> {
     /**
      * 记录今日统计监控数据
