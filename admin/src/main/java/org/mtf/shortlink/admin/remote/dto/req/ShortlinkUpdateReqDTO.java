@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
-
+/**
+ * 短链接修改参数
+ */
 @Data
 public class ShortlinkUpdateReqDTO {
     private String originUrl;

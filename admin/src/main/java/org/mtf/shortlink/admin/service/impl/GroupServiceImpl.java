@@ -11,7 +11,7 @@ import org.mtf.shortlink.admin.common.biz.user.UserContext;
 import org.mtf.shortlink.admin.common.convention.exception.ClientException;
 import org.mtf.shortlink.admin.dao.entity.GroupDO;
 import org.mtf.shortlink.admin.dao.mapper.GroupMapper;
-import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
+import org.mtf.shortlink.admin.dto.req.ShortlinkGroupUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
 import org.mtf.shortlink.admin.remote.ShortlinkActualRemoteService;
@@ -92,7 +92,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     }
 
     @Override
-    public void updateGroup(ShortLinkGroupUpdateReqDTO requestParam) {
+    public void updateGroup(ShortlinkGroupUpdateReqDTO requestParam) {
         LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
                 .eq(GroupDO::getGid, requestParam.getGid())
                 .eq(GroupDO::getUsername, UserContext.getUsername())

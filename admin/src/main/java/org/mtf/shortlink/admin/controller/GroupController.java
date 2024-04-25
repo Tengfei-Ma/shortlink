@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.mtf.shortlink.admin.common.convention.result.Result;
 import org.mtf.shortlink.admin.common.convention.result.Results;
 import org.mtf.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
-import org.mtf.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
+import org.mtf.shortlink.admin.dto.req.ShortlinkGroupUpdateReqDTO;
 import org.mtf.shortlink.admin.dto.req.ShortlinkGroupSortReqDTO;
 import org.mtf.shortlink.admin.dto.resp.ShortlinkGroupRespDTO;
 import org.mtf.shortlink.admin.service.GroupService;
@@ -41,7 +41,7 @@ public class GroupController {
      * 修改短链接分组名称
      */
     @PutMapping("/api/shortlink/admin/v1/group")
-    public Result<Void> updateGroup(@RequestBody ShortLinkGroupUpdateReqDTO requestParam){
+    public Result<Void> updateGroup(@RequestBody ShortlinkGroupUpdateReqDTO requestParam){
         groupService.updateGroup(requestParam);
         return Results.success();
     }
