@@ -337,7 +337,8 @@ public class ShortlinkServiceImpl extends ServiceImpl<ShortlinkMapper, Shortlink
         }
 
         if (!Objects.equals(hasShortlinkDO.getValidDateType(), requestParam.getValidDateType())
-                || !Objects.equals(hasShortlinkDO.getValidDate(), requestParam.getValidDate())) {
+                || !Objects.equals(hasShortlinkDO.getValidDate(), requestParam.getValidDate())
+                || !Objects.equals(hasShortlinkDO.getOriginUrl(), requestParam.getOriginUrl())) {
             stringRedisTemplate.delete(String.format(GOTO_SHORT_LINK_KEY, requestParam.getFullShortUrl()));
             if (hasShortlinkDO.getValidDate() != null && hasShortlinkDO.getValidDate().before(new Date())) {
                 if (Objects.equals(requestParam.getValidDateType(), PERMANENT.getType()) || requestParam.getValidDate().after(new Date())) {
