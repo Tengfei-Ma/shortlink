@@ -26,6 +26,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
+import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.mtf.shortlink.project.common.convention.exception.ServiceException;
 import org.mtf.shortlink.project.dao.entity.*;
 import org.mtf.shortlink.project.dao.mapper.*;
@@ -35,16 +37,12 @@ import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.connection.stream.MapRecord;
-import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.mtf.shortlink.project.common.constant.RedisCacheConstant.LOCK_GID_UPDATE_KEY;
 import static org.mtf.shortlink.project.common.constant.ShortlinkConstant.AMAP_REMOTE_URL;
@@ -57,7 +55,11 @@ import static org.mtf.shortlink.project.common.constant.ShortlinkConstant.AMAP_R
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ShortlinkStatsSaveConsumer implements StreamListener<String, MapRecord<String, String, String>> {
+@RocketMQMessageListener(
+        topic = "${rocketmq.producer.topic}",
+        consumerGroup = "${rocketmq.consumer.group}"
+)
+public class ShortlinkStatsSaveConsumer implements RocketMQListener<Map<String, String>> {
 
     private final ShortlinkMapper shortlinkMapper;
     private final ShortlinkGotoMapper shortlinkGotoMapper;
@@ -77,28 +79,28 @@ public class ShortlinkStatsSaveConsumer implements StreamListener<String, MapRec
     private String statsLocalAmapKey;
 
     @Override
-    public void onMessage(MapRecord<String, String, String> message) {
-        String stream = message.getStream();
-        RecordId id = message.getId();
-        if (!messageQueueIdempotentHandler.isMessageProcessed(id.toString())) {
+    public void onMessage(Map<String, String> producerMap) {
+        String keys = producerMap.get("keys");
+        if (!messageQueueIdempotentHandler.isMessageProcessed(keys)) {
             // 判断当前的这个消息流程是否执行完成
-            if (messageQueueIdempotentHandler.isAccomplish(id.toString())) {
+            if (messageQueueIdempotentHandler.isAccomplish(keys)) {
                 return;
             }
             throw new ServiceException("消息未完成流程，需要消息队列重试");
         }
         try {
-            Map<String, String> producerMap = message.getValue();
             ShortlinkStatsRecordDTO statsRecord = JSON.parseObject(producerMap.get("statsRecord"), ShortlinkStatsRecordDTO.class);
             actualSaveShortlinkStats(statsRecord);
-            stringRedisTemplate.opsForStream().delete(Objects.requireNonNull(stream), id.getValue());
         } catch (Throwable ex) {
-            // 消费失败要重试，删除redis中的幂等标识
-            messageQueueIdempotentHandler.delMessageProcessed(id.toString());
             log.error("记录短链接监控消费异常", ex);
+            try {
+                messageQueueIdempotentHandler.delMessageProcessed(keys);
+            } catch (Throwable remoteEx) {
+                log.error("删除幂等标识错误：", remoteEx);
+            }
             throw ex;
         }
-        messageQueueIdempotentHandler.setAccomplish(id.toString());
+        messageQueueIdempotentHandler.setAccomplish(keys);
     }
 
     public void actualSaveShortlinkStats(ShortlinkStatsRecordDTO statsRecord) {
